@@ -1,0 +1,93 @@
+name: Build Android APK with Supabase
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Setup Environment Variables
+      run: |
+        echo "EXPO_PUBLIC_SUPABASE_URL=https://weqqelaqsypnevypsdxq.supabase.co" >> $GITHUB_ENV
+        echo "EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlcXFlbGFxc3lwbmV2eXBzZHhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4NzQ2OTgsImV4cCI6MjA2OTQ1MDY5OH0.hIgwJcLiNeKd9WOyJdhFfrgYfVDlT2vuV7PM9cEydk0" >> $GITHUB_ENV
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '11'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Build APK with EAS
+      uses: expo/expo-github-action@v8
+      with:
+        expo-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+        eas-version: latest
+      env:
+        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        
+    - name: Build APK
+      run: |
+        npx eas build --platform android --non-interactive --local
+      env:
+        EXPO_PUBLIC_SUPABASE_URL: ${{ env.EXPO_PUBLIC_SUPABASE_URL }}
+        EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ env.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+      
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: taxi-app-apk
+        path: |
+          *.apk
+          *.aab
+        retention-days: 30
+        
+    - name: Create Release
+      if: github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          *.apk
+          *.aab
+        tag_name: v${{ github.run_number }}
+        name: Release v${{ github.run_number }}
+        body: |
+          ## Taxi App APK
+          
+          ### Changes in this release:
+          - Automated build from main branch
+          - APK and AAB files included
+          
+          ### Installation:
+          1. Download the APK file
+          2. Enable "Install from unknown sources" in your Android settings
+          3. Install the APK
+          
+          ### Testing:
+          - Test all customer features
+          - Test all driver features  
+          - Test admin panel
+          - Test support system
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
