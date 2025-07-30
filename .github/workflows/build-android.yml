@@ -10,6 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CI: 1
     
     steps:
     - name: Checkout code
@@ -28,6 +30,7 @@ jobs:
       run: |
         echo "EXPO_PUBLIC_SUPABASE_URL=https://weqqelaqsypnevypsdxq.supabase.co" >> $GITHUB_ENV
         echo "EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlcXFlbGFxc3lwbmV2eXBzZHhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4NzQ2OTgsImV4cCI6MjA2OTQ1MDY5OH0.hIgwJcLiNeKd9WOyJdhFfrgYfVDlT2vuV7PM9cEydk0" >> $GITHUB_ENV
+        echo "CI=1" >> $GITHUB_ENV
         
     - name: Install dependencies
       run: npm install
@@ -45,7 +48,7 @@ jobs:
       run: npm install -g @expo/cli
       
     - name: Login to Expo
-      run: npx expo login --non-interactive --token ${{ secrets.EXPO_TOKEN }}
+      run: npx expo login --token ${{ secrets.EXPO_TOKEN }}
       
     - name: Install EAS CLI
       run: npm install -g @expo/eas-cli
