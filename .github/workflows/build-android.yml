@@ -20,6 +20,9 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
+        
+    - name: Install jq
+      run: sudo apt-get install -y jq
     
     - name: Setup Environment Variables
       run: |
@@ -33,7 +36,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
-        java-version: '11'
+        java-version: '17'
         
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
@@ -49,27 +52,27 @@ jobs:
         
     - name: Build APK
       run: |
-        npx eas build --platform android --non-interactive --local
+        npx eas build --platform android --non-interactive
       env:
         EXPO_PUBLIC_SUPABASE_URL: ${{ env.EXPO_PUBLIC_SUPABASE_URL }}
         EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ env.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
       
+    - name: Download APK from EAS
+      run: |
+        npx eas build:list --platform android --limit 1 --json | jq -r '.[0].artifacts.buildUrl' | xargs -I {} curl -L {} -o taxi-app.apk
+        
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: taxi-app-apk
-        path: |
-          *.apk
-          *.aab
+        path: taxi-app.apk
         retention-days: 30
         
     - name: Create Release
       if: github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v1
       with:
-        files: |
-          *.apk
-          *.aab
+        files: taxi-app.apk
         tag_name: v${{ github.run_number }}
         name: Release v${{ github.run_number }}
         body: |
@@ -77,7 +80,7 @@ jobs:
           
           ### Changes in this release:
           - Automated build from main branch
-          - APK and AAB files included
+          - APK file included
           
           ### Installation:
           1. Download the APK file
