@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: 1
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
     
     steps:
     - name: Checkout code
@@ -49,8 +50,9 @@ jobs:
       run: npm install -g @expo/cli
       
     - name: Login to Expo
-      run: |
-        echo ${{ secrets.EXPO_TOKEN }} | npx expo login --non-interactive
+      run: npx expo login
+      env:
+        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       
     - name: Install EAS CLI
       run: npm install -g @expo/eas-cli
@@ -64,6 +66,7 @@ jobs:
       env:
         EXPO_PUBLIC_SUPABASE_URL: ${{ env.EXPO_PUBLIC_SUPABASE_URL }}
         EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ env.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       
     - name: Download APK from EAS
       run: |
