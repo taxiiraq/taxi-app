@@ -52,8 +52,15 @@ jobs:
     - name: Install EAS CLI
       run: npm install -g eas-cli
       
-    - name: Configure EAS
-      run: npx eas build:configure --platform android
+    - name: Login to EAS
+      run: npx eas login --non-interactive
+      env:
+        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        
+    - name: Update EAS Project ID
+      run: |
+        PROJECT_ID=$(npx eas project:info --json | jq -r '.projectId')
+        sed -i "s/your-project-id/$PROJECT_ID/g" eas.json
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       
