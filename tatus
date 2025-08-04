@@ -1,0 +1,5 @@
+[33m70f9c18[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Fix EAS configuration for CI/CD - replace configure with login and project ID update
+[33m1801977[m Fix EAS build configuration - remove --non-interactive flag
+[33m4d8c703[m Fix EAS CLI package name: Use eas-cli instead of @expo/eas-cli
+[33mbe831a2[m Remove explicit Expo login step - EAS will use EXPO_TOKEN automatically
+[33m57cebf7[m Fix Expo authentication: Use EXPO_TOKEN environment variable instead of pipe
