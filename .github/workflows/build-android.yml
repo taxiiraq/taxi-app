@@ -52,17 +52,18 @@ jobs:
     - name: Install EAS CLI
       run: npm install -g eas-cli
       
-    - name: Login to EAS
-      run: npx eas login --non-interactive
-      env:
-        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    - name: Setup Expo Token
+      run: |
+        echo "//registry.npmjs.org/:_authToken=${{ secrets.EXPO_TOKEN }}" > ~/.npmrc
+        echo "//registry.expo.dev/:_authToken=${{ secrets.EXPO_TOKEN }}" >> ~/.npmrc
         
     - name: Update EAS Project ID
       run: |
-        PROJECT_ID=$(npx eas project:info --json | jq -r '.projectId')
-        sed -i "s/your-project-id/$PROJECT_ID/g" eas.json
-      env:
-        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        if [ -n "${{ secrets.EAS_PROJECT_ID }}" ]; then
+          sed -i "s/your-project-id/${{ secrets.EAS_PROJECT_ID }}/g" eas.json
+        else
+          echo "EAS_PROJECT_ID not set, using default configuration"
+        fi
       
     - name: Build APK
       run: |
