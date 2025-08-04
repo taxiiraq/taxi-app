@@ -57,10 +57,10 @@ jobs:
         echo "//registry.npmjs.org/:_authToken=${{ secrets.EXPO_TOKEN }}" > ~/.npmrc
         echo "//registry.expo.dev/:_authToken=${{ secrets.EXPO_TOKEN }}" >> ~/.npmrc
         
-    - name: Setup EAS Project
+    - name: Verify EAS Configuration
       run: |
-        echo "Setting up EAS project configuration"
-        npx eas project:info
+        echo "Verifying EAS configuration"
+        cat eas.json
       
     - name: Build APK
       run: |
