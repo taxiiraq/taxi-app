@@ -57,13 +57,14 @@ jobs:
         echo "//registry.npmjs.org/:_authToken=${{ secrets.EXPO_TOKEN }}" > ~/.npmrc
         echo "//registry.expo.dev/:_authToken=${{ secrets.EXPO_TOKEN }}" >> ~/.npmrc
         
-    - name: Build APK with Expo
+    - name: Build APK with EAS
       run: |
-        npx expo build:android --type apk --non-interactive
+        npx eas build --platform android --profile preview --non-interactive
       env:
         EXPO_PUBLIC_SUPABASE_URL: ${{ env.EXPO_PUBLIC_SUPABASE_URL }}
         EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ env.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        CI: 1
       
     - name: Download APK from EAS
       run: |
