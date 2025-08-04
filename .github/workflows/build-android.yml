@@ -57,6 +57,52 @@ jobs:
         echo "//registry.npmjs.org/:_authToken=${{ secrets.EXPO_TOKEN }}" > ~/.npmrc
         echo "//registry.expo.dev/:_authToken=${{ secrets.EXPO_TOKEN }}" >> ~/.npmrc
         
+    - name: Pre-check before build
+      run: |
+        echo "🔍 Starting Pre-check..."
+
+        # Check for eas.json
+        if [ ! -f eas.json ]; then
+          echo "❌ Missing eas.json file. Please create it and define build profiles."; exit 1;
+        fi
+
+        # Check if preview profile exists
+        if ! jq -e '.build.preview' eas.json > /dev/null; then
+          echo "❌ 'preview' profile not found in eas.json."; exit 1;
+        fi
+
+        # Check for package.json
+        if [ ! -f package.json ]; then
+          echo "❌ Missing package.json file."; exit 1;
+        fi
+
+        # Check for App.js or main entry point
+        if [ ! -f App.js ] && [ ! -f index.js ]; then
+          echo "❌ Missing App.js or index.js. Cannot start project."; exit 1;
+        fi
+
+        # Check if expo-cli is installed
+        if ! command -v expo >/dev/null 2>&1; then
+          echo "❌ expo CLI not found."; exit 1;
+        fi
+
+        # Check if eas-cli is installed
+        if ! command -v eas >/dev/null 2>&1; then
+          echo "❌ eas CLI not found."; exit 1;
+        fi
+
+        # Check if EXPO_TOKEN is available
+        if [ -z "$EXPO_TOKEN" ]; then
+          echo "❌ Missing EXPO_TOKEN environment variable or secret."; exit 1;
+        fi
+
+        # Check if Supabase Key is available
+        if [ -z "$EXPO_PUBLIC_SUPABASE_ANON_KEY" ]; then
+          echo "❌ Missing Supabase Anon Key."; exit 1;
+        fi
+
+        echo "✅ Pre-check passed. Proceeding to build."
+        
     - name: Build APK with EAS
       run: |
         npx eas build --platform android --profile preview --non-interactive
