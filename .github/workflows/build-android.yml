@@ -57,14 +57,9 @@ jobs:
         echo "//registry.npmjs.org/:_authToken=${{ secrets.EXPO_TOKEN }}" > ~/.npmrc
         echo "//registry.expo.dev/:_authToken=${{ secrets.EXPO_TOKEN }}" >> ~/.npmrc
         
-    - name: Verify EAS Configuration
+    - name: Build APK with Expo
       run: |
-        echo "Verifying EAS configuration"
-        cat eas.json
-      
-    - name: Build APK
-      run: |
-        npx eas build --platform android --non-interactive
+        npx expo build:android --type apk --non-interactive
       env:
         EXPO_PUBLIC_SUPABASE_URL: ${{ env.EXPO_PUBLIC_SUPABASE_URL }}
         EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ env.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
