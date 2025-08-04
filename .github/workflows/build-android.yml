@@ -57,13 +57,10 @@ jobs:
         echo "//registry.npmjs.org/:_authToken=${{ secrets.EXPO_TOKEN }}" > ~/.npmrc
         echo "//registry.expo.dev/:_authToken=${{ secrets.EXPO_TOKEN }}" >> ~/.npmrc
         
-    - name: Update EAS Project ID
+    - name: Setup EAS Project
       run: |
-        if [ -n "${{ secrets.EAS_PROJECT_ID }}" ]; then
-          sed -i "s/your-project-id/${{ secrets.EAS_PROJECT_ID }}/g" eas.json
-        else
-          echo "EAS_PROJECT_ID not set, using default configuration"
-        fi
+        echo "Setting up EAS project configuration"
+        npx eas project:info
       
     - name: Build APK
       run: |
