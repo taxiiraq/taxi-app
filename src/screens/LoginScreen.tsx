@@ -49,8 +49,22 @@ export default function LoginScreen() {
           // التحقق من نوع المستخدم
           const { data: { user } } = await supabase.auth.getUser();
           if (user) {
-            const { data: userData } = await DatabaseService.getUserById(user.id);
-            if (userData) {
+            const { data: userData, error: userError } = await DatabaseService.getUserById(user.id);
+            if (userError) {
+              console.error('خطأ في الحصول على بيانات المستخدم:', userError);
+              // إذا لم يتم العثور على المستخدم، أنشئه
+              const { error: createError } = await DatabaseService.createUser({
+                name: user.user_metadata?.name || 'مستخدم جديد',
+                email: user.email || '',
+                phone: user.user_metadata?.phone || '',
+                role: user.user_metadata?.role || 'customer',
+                status: 'active'
+              });
+              if (createError) {
+                console.error('خطأ في إنشاء المستخدم:', createError);
+              }
+              navigation.navigate('CustomerHome');
+            } else if (userData) {
               switch (userData.role) {
                 case 'admin':
                   navigation.navigate('AdminPanel');
@@ -64,7 +78,6 @@ export default function LoginScreen() {
                   break;
               }
             } else {
-              // إذا لم يتم العثور على بيانات المستخدم، افترض أنه عميل
               navigation.navigate('CustomerHome');
             }
           } else {
@@ -72,7 +85,6 @@ export default function LoginScreen() {
           }
         } catch (userError) {
           console.error('خطأ في الحصول على بيانات المستخدم:', userError);
-          // في حالة الخطأ، انتقل إلى الصفحة الرئيسية للعملاء
           navigation.navigate('CustomerHome');
         }
       }

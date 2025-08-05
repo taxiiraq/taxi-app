@@ -5,6 +5,7 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { StatusBar } from 'react-native';
 
 import { AuthProvider } from './src/contexts/AuthContext';
+import { ErrorBoundary } from './src/components/ErrorBoundary';
 import SplashScreen from './src/screens/SplashScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
@@ -39,37 +40,42 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <AuthProvider>
-      <PaperProvider>
-        <NavigationContainer
-          onStateChange={(state) => {
-            console.log('Navigation state changed:', state);
-          }}
-        >
-          <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-          <Stack.Navigator 
-            initialRouteName="Splash"
-            screenOptions={{
-              headerShown: false,
-              gestureEnabled: true,
+    <ErrorBoundary>
+      <AuthProvider>
+        <PaperProvider>
+          <NavigationContainer
+            onStateChange={(state) => {
+              console.log('Navigation state changed:', state);
+            }}
+            onReady={() => {
+              console.log('Navigation is ready');
             }}
           >
-            <Stack.Screen name="Splash" component={SplashScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
-            <Stack.Screen name="CustomerHome" component={CustomerHomeScreen} />
-            <Stack.Screen name="DriverHome" component={DriverHomeScreen} />
-            <Stack.Screen name="AdminPanel" component={AdminPanelScreen} />
-            <Stack.Screen name="CreateOrder" component={CreateOrderScreen} />
-            <Stack.Screen name="TrackOrder" component={TrackOrderScreen} />
-            <Stack.Screen name="TrackOrderMap" component={TrackOrderMapScreen} />
-            <Stack.Screen name="DriverOrder" component={DriverOrderScreen} />
-            <Stack.Screen name="DriverMap" component={DriverMapScreen} />
-            <Stack.Screen name="DriversMap" component={DriversMapScreen} />
-            <Stack.Screen name="Support" component={SupportScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </PaperProvider>
-    </AuthProvider>
+            <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+            <Stack.Navigator 
+              initialRouteName="Splash"
+              screenOptions={{
+                headerShown: false,
+                gestureEnabled: true,
+              }}
+            >
+              <Stack.Screen name="Splash" component={SplashScreen} />
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="Register" component={RegisterScreen} />
+              <Stack.Screen name="CustomerHome" component={CustomerHomeScreen} />
+              <Stack.Screen name="DriverHome" component={DriverHomeScreen} />
+              <Stack.Screen name="AdminPanel" component={AdminPanelScreen} />
+              <Stack.Screen name="CreateOrder" component={CreateOrderScreen} />
+              <Stack.Screen name="TrackOrder" component={TrackOrderScreen} />
+              <Stack.Screen name="TrackOrderMap" component={TrackOrderMapScreen} />
+              <Stack.Screen name="DriverOrder" component={DriverOrderScreen} />
+              <Stack.Screen name="DriverMap" component={DriverMapScreen} />
+              <Stack.Screen name="DriversMap" component={DriversMapScreen} />
+              <Stack.Screen name="Support" component={SupportScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </PaperProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 } 

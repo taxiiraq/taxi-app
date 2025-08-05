@@ -26,38 +26,71 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Get initial session
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setSession(session);
-        setUser(session?.user ?? null);
+        setError(null);
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('خطأ في الحصول على الجلسة:', error);
+          setError(error.message);
+        } else {
+          setSession(session);
+          setUser(session?.user ?? null);
+        }
       } catch (error) {
         console.error('خطأ في تهيئة المصادقة:', error);
+        setError('خطأ في الاتصال بالخادم');
       } finally {
         setLoading(false);
       }
     };
 
-    initializeAuth();
+    // تأخير قليل لتجنب مشاكل التهيئة
+    const timer = setTimeout(initializeAuth, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
+  useEffect(() => {
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+    let subscription: any;
+    
+    try {
+      const { data } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          try {
+            setError(null);
+            setSession(session);
+            setUser(session?.user ?? null);
+          } catch (error) {
+            console.error('خطأ في تغيير حالة المصادقة:', error);
+            setError('خطأ في تحديث حالة المصادقة');
+          } finally {
+            setLoading(false);
+          }
+        }
+      );
+      
+      subscription = data.subscription;
+    } catch (error) {
+      console.error('خطأ في إعداد مراقب المصادقة:', error);
+      setError('خطأ في إعداد المصادقة');
+      setLoading(false);
+    }
+
+    return () => {
+      if (subscription) {
         try {
-          setSession(session);
-          setUser(session?.user ?? null);
+          subscription.unsubscribe();
         } catch (error) {
-          console.error('خطأ في تغيير حالة المصادقة:', error);
-        } finally {
-          setLoading(false);
+          console.error('خطأ في إلغاء الاشتراك:', error);
         }
       }
-    );
-
-    return () => subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, userData: any) => {
@@ -80,6 +113,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signOut,
   };
+
+  // معالجة الأخطاء
+  if (error) {
+    console.error('خطأ في AuthContext:', error);
+  }
 
   return (
     <AuthContext.Provider value={value}>

@@ -73,7 +73,15 @@ export class DatabaseService {
   static async createOrder(orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>) {
     const { data, error } = await supabase
       .from('orders')
-      .insert([orderData])
+      .insert([{
+        customer_id: orderData.customerId,
+        driver_id: orderData.driverId,
+        pickup_address: orderData.pickupAddress,
+        destination_address: orderData.destinationAddress,
+        description: orderData.description,
+        notes: orderData.notes,
+        status: orderData.status || 'pending'
+      }])
       .select()
       .single();
     return { data, error };

@@ -44,8 +44,8 @@ export class OpenStreetMapService {
         name: element.tags?.name || 'غير معروف',
         address: element.tags && element.tags['addr:street'] ? element.tags['addr:street'] : '',
         location: {
-          latitude: element.lat,
-          longitude: element.lon,
+          latitude: element.lat || 0,
+          longitude: element.lon || 0,
         },
         type: element.tags?.amenity || 'place',
       }));
@@ -124,46 +124,20 @@ export class OpenStreetMapService {
     mode: 'driving' | 'walking' | 'bicycling' = 'driving'
   ): Promise<OSMDirections> {
     try {
-      const profile = mode === 'driving' ? 'driving-car' : 
-                     mode === 'walking' ? 'foot-walking' : 'cycling-regular';
-      
-      const response = await fetch(
-        `https://api.openrouteservice.org/v2/directions/${profile}/geojson`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer YOUR_ORS_API_KEY', // مجاني من openrouteservice.org
-          },
-          body: JSON.stringify({
-            coordinates: [
-              [origin.longitude, origin.latitude],
-              [destination.longitude, destination.latitude]
-            ],
-            instructions: true,
-            geometry: true,
-          }),
-        }
+      // استخدام حساب المسافة البسيط كبديل للـ API
+      const distance = LocationService.calculateDistance(
+        origin.latitude,
+        origin.longitude,
+        destination.latitude,
+        destination.longitude
       );
       
-      const data = await response.json();
-      
-      if (data.features && data.features.length > 0) {
-        const route = data.features[0];
-        const properties = route.properties;
-        
-        // تحويل GeoJSON إلى إحداثيات
-        const polyline = this.decodeGeoJSON(route.geometry);
-        
-        return {
-          distance: `${(properties.summary.distance / 1000).toFixed(1)} كم`,
-          duration: `${Math.round(properties.summary.duration / 60)} دقيقة`,
-          polyline,
-          steps: properties.segments?.[0]?.steps?.map((step: any) => step.instruction) || [],
-        };
-      }
-      
-      throw new Error('لا يوجد مسار متاح');
+      return {
+        distance: `${distance.toFixed(1)} كم`,
+        duration: `${Math.round(distance * 2)} دقيقة`,
+        polyline: [origin, destination],
+        steps: [],
+      };
     } catch (error) {
       console.error('خطأ في الحصول على الاتجاهات:', error);
       // استخدام حساب المسافة البسيط كبديل

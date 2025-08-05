@@ -12,7 +12,8 @@ export interface Order {
   id: string;
   customerId: string;
   driverId?: string;
-  address: string;
+  pickupAddress: string;
+  destinationAddress: string;
   description: string;
   notes?: string;
   status: 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';

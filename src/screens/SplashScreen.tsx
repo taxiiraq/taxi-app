@@ -22,6 +22,14 @@ export default function SplashScreen() {
       navigation.navigate('Login');
     } catch (error) {
       console.error('خطأ في الانتقال إلى شاشة تسجيل الدخول:', error);
+      // في حالة الخطأ، انتظر قليلاً ثم حاول مرة أخرى
+      setTimeout(() => {
+        try {
+          navigation.navigate('Login');
+        } catch (retryError) {
+          console.error('خطأ في المحاولة الثانية:', retryError);
+        }
+      }, 1000);
     }
   };
 
@@ -30,6 +38,14 @@ export default function SplashScreen() {
       navigation.navigate('Register');
     } catch (error) {
       console.error('خطأ في الانتقال إلى شاشة التسجيل:', error);
+      // في حالة الخطأ، انتظر قليلاً ثم حاول مرة أخرى
+      setTimeout(() => {
+        try {
+          navigation.navigate('Register');
+        } catch (retryError) {
+          console.error('خطأ في المحاولة الثانية:', retryError);
+        }
+      }, 1000);
     }
   };
 

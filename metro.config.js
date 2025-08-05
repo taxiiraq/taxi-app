@@ -11,4 +11,8 @@ config.transformer.minifierConfig = {
   },
 };
 
+// إعدادات إضافية لتحسين الأداء
+config.resolver.sourceExts = ['js', 'jsx', 'json', 'ts', 'tsx'];
+config.resolver.assetExts = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+
 module.exports = config; 

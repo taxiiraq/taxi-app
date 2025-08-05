@@ -210,7 +210,7 @@ export default function FreeMapView({
       coordinate: place.location,
       type: 'business' as const,
     })),
-  ] : [];
+  ].filter(marker => marker.coordinate.latitude !== 0 && marker.coordinate.longitude !== 0) : [];
 
   const allMarkers = [...markers, ...neighborhoodMarkers];
 

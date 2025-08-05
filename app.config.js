@@ -19,16 +19,6 @@ export default {
     android: {
       enableProguardInReleaseBuilds: false,
       enableSeparateBuildPerCPUArchitecture: false,
-    },
-    ios: {
-      supportsTablet: true,
-      bundleIdentifier: "com.taxiapp.app",
-      infoPlist: {
-        NSLocationWhenInUseUsageDescription: "يحتاج التطبيق إلى الوصول إلى موقعك لتتبع الطلبات وتوجيه السائقين",
-        NSLocationAlwaysAndWhenInUseUsageDescription: "يحتاج التطبيق إلى الوصول إلى موقعك لتتبع الطلبات وتوجيه السائقين"
-      }
-    },
-    android: {
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF"
@@ -46,6 +36,14 @@ export default {
         // googleMaps: {
         //   apiKey: "YOUR_GOOGLE_MAPS_API_KEY_HERE"
         // }
+      }
+    },
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: "com.taxiapp.app",
+      infoPlist: {
+        NSLocationWhenInUseUsageDescription: "يحتاج التطبيق إلى الوصول إلى موقعك لتتبع الطلبات وتوجيه السائقين",
+        NSLocationAlwaysAndWhenInUseUsageDescription: "يحتاج التطبيق إلى الوصول إلى موقعك لتتبع الطلبات وتوجيه السائقين"
       }
     },
     web: {
