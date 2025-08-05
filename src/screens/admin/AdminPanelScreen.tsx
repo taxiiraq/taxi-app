@@ -1,287 +1,161 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   StyleSheet,
   ScrollView,
-  FlatList,
 } from 'react-native';
-import { Button, Text, Card, IconButton, Chip, DataTable, FAB } from 'react-native-paper';
+import { Button, Text, Card, IconButton, DataTable, FAB } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../../App';
 
 type AdminPanelScreenNavigationProp = StackNavigationProp<RootStackParamList, 'AdminPanel'>;
 
-const mockOrders = [
-  {
-    id: '1',
-    orderNumber: '#12345',
-    customerName: 'أحمد محمد',
-    driverName: 'محمد علي',
-    status: 'completed',
-    date: '2024-01-15',
-  },
-  {
-    id: '2',
-    orderNumber: '#12344',
-    customerName: 'فاطمة علي',
-    driverName: 'علي أحمد',
-    status: 'in_progress',
-    date: '2024-01-14',
-  },
-];
-
-const mockUsers = [
-  {
-    id: '1',
-    name: 'أحمد محمد',
-    phone: '+966501234567',
-    ordersCount: 5,
-    status: 'active',
-  },
-  {
-    id: '2',
-    name: 'فاطمة علي',
-    phone: '+966502345678',
-    ordersCount: 3,
-    status: 'active',
-  },
-];
-
-const mockDrivers = [
-  {
-    id: '1',
-    name: 'محمد علي',
-    ordersCount: 12,
-    status: 'active',
-  },
-  {
-    id: '2',
-    name: 'علي أحمد',
-    ordersCount: 8,
-    status: 'active',
-  },
-];
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'completed':
-      return '#28a745';
-    case 'in_progress':
-      return '#ffc107';
-    case 'pending':
-      return '#6c757d';
-    case 'active':
-      return '#28a745';
-    default:
-      return '#6c757d';
-  }
-};
-
-const getStatusText = (status: string) => {
-  switch (status) {
-    case 'completed':
-      return 'مكتمل';
-    case 'in_progress':
-      return 'قيد التنفيذ';
-    case 'pending':
-      return 'في الانتظار';
-    case 'active':
-      return 'نشط';
-    default:
-      return 'غير معروف';
-  }
-};
-
 export default function AdminPanelScreen() {
   const navigation = useNavigation<AdminPanelScreenNavigationProp>();
-  const [activeTab, setActiveTab] = useState('orders');
 
-  const renderOrdersTab = () => (
-    <View style={styles.tabContent}>
-      <FlatList
-        data={mockOrders}
-        renderItem={({ item }) => (
-          <Card style={styles.tableCard} mode="outlined">
-            <Card.Content>
-              <View style={styles.tableRow}>
-                <Text style={styles.tableCell}>{item.orderNumber}</Text>
-                <Text style={styles.tableCell}>{item.customerName}</Text>
-                <Text style={styles.tableCell}>{item.driverName}</Text>
-                <Chip
-                  mode="outlined"
-                  textStyle={{ color: getStatusColor(item.status) }}
-                  style={[styles.statusChip, { borderColor: getStatusColor(item.status) }]}
-                >
-                  {getStatusText(item.status)}
-                </Chip>
-                <Text style={styles.tableCell}>{item.date}</Text>
-                <Button
-                  mode="outlined"
-                  style={styles.detailsButton}
-                  onPress={() => {}}
-                >
-                  تفاصيل
-                </Button>
-              </View>
-            </Card.Content>
-          </Card>
-        )}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
-  );
+  const handleDriversMap = () => {
+    navigation.navigate('DriversMap');
+  };
 
-  const renderUsersTab = () => (
-    <View style={styles.tabContent}>
-      <FlatList
-        data={mockUsers}
-        renderItem={({ item }) => (
-          <Card style={styles.tableCard} mode="outlined">
-            <Card.Content>
-              <View style={styles.tableRow}>
-                <Text style={styles.tableCell}>{item.name}</Text>
-                <Text style={styles.tableCell}>{item.phone}</Text>
-                <Text style={styles.tableCell}>{item.ordersCount}</Text>
-                <Chip
-                  mode="outlined"
-                  textStyle={{ color: getStatusColor(item.status) }}
-                  style={[styles.statusChip, { borderColor: getStatusColor(item.status) }]}
-                >
-                  {getStatusText(item.status)}
-                </Chip>
-                <Button
-                  mode="outlined"
-                  style={styles.banButton}
-                  onPress={() => {}}
-                >
-                  حظر المستخدم
-                </Button>
-              </View>
-            </Card.Content>
-          </Card>
-        )}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
-  );
-
-  const renderDriversTab = () => (
-    <View style={styles.tabContent}>
-      <Button
-        mode="contained"
-        style={styles.mapButton}
-        onPress={() => navigation.navigate('DriversMap')}
-        icon="map"
-      >
-        مراقبة السائقين على الخريطة
-      </Button>
-      
-      <FlatList
-        data={mockDrivers}
-        renderItem={({ item }) => (
-          <Card style={styles.tableCard} mode="outlined">
-            <Card.Content>
-              <View style={styles.tableRow}>
-                <Text style={styles.tableCell}>{item.name}</Text>
-                <Text style={styles.tableCell}>{item.ordersCount}</Text>
-                <Chip
-                  mode="outlined"
-                  textStyle={{ color: getStatusColor(item.status) }}
-                  style={[styles.statusChip, { borderColor: getStatusColor(item.status) }]}
-                >
-                  {getStatusText(item.status)}
-                </Chip>
-                <Button
-                  mode="outlined"
-                  style={styles.banButton}
-                  onPress={() => {}}
-                >
-                  إيقاف السائق
-                </Button>
-              </View>
-            </Card.Content>
-          </Card>
-        )}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
-  );
-
-  const renderSupportTab = () => (
-    <View style={styles.tabContent}>
-      <Card style={styles.supportCard} mode="outlined">
-        <Card.Content>
-          <Text style={styles.supportTitle}>الدعم الفني</Text>
-          <Text style={styles.supportText}>
-            إدارة رسائل الدعم الفني والاستفسارات
-          </Text>
-          <Button
-            mode="contained"
-            style={styles.supportButton}
-            onPress={() => navigation.navigate('Support')}
-          >
-            عرض الرسائل
-          </Button>
-        </Card.Content>
-      </Card>
-    </View>
-  );
+  const handleSupport = () => {
+    navigation.navigate('Support');
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>لوحة التحكم</Text>
-        <IconButton
-          icon="help-circle"
-          size={24}
-          onPress={() => navigation.navigate('Support')}
-          style={styles.supportIcon}
-        />
+        <Text style={styles.subtitle}>إدارة تطبيق التاكسي</Text>
       </View>
 
-      <View style={styles.tabsContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Button
-            mode={activeTab === 'orders' ? 'contained' : 'outlined'}
-            style={styles.tabButton}
-            onPress={() => setActiveTab('orders')}
-          >
-            الطلبات
-          </Button>
-          <Button
-            mode={activeTab === 'users' ? 'contained' : 'outlined'}
-            style={styles.tabButton}
-            onPress={() => setActiveTab('users')}
-          >
-            المستخدمين
-          </Button>
-          <Button
-            mode={activeTab === 'drivers' ? 'contained' : 'outlined'}
-            style={styles.tabButton}
-            onPress={() => setActiveTab('drivers')}
-          >
-            السواق
-          </Button>
-          <Button
-            mode={activeTab === 'support' ? 'contained' : 'outlined'}
-            style={styles.tabButton}
-            onPress={() => setActiveTab('support')}
-          >
-            الدعم الفني
-          </Button>
-        </ScrollView>
-      </View>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <Card style={styles.card}>
+          <Card.Content>
+            <View style={styles.cardHeader}>
+              <IconButton
+                icon="map-marker-multiple"
+                size={40}
+                iconColor="#007bff"
+              />
+              <View style={styles.cardText}>
+                <Text style={styles.cardTitle}>خريطة السائقين</Text>
+                <Text style={styles.cardDescription}>
+                  عرض مواقع جميع السائقين على الخريطة
+                </Text>
+              </View>
+            </View>
+          </Card.Content>
+          <Card.Actions>
+            <Button
+              mode="contained"
+              onPress={handleDriversMap}
+              style={styles.cardButton}
+            >
+              عرض الخريطة
+            </Button>
+          </Card.Actions>
+        </Card>
 
-      <ScrollView style={styles.content}>
-        {activeTab === 'orders' && renderOrdersTab()}
-        {activeTab === 'users' && renderUsersTab()}
-        {activeTab === 'drivers' && renderDriversTab()}
-        {activeTab === 'support' && renderSupportTab()}
+        <Card style={styles.card}>
+          <Card.Content>
+            <View style={styles.cardHeader}>
+              <IconButton
+                icon="headset"
+                size={40}
+                iconColor="#28a745"
+              />
+              <View style={styles.cardText}>
+                <Text style={styles.cardTitle}>الدعم الفني</Text>
+                <Text style={styles.cardDescription}>
+                  إدارة طلبات الدعم والمساعدة
+                </Text>
+              </View>
+            </View>
+          </Card.Content>
+          <Card.Actions>
+            <Button
+              mode="contained"
+              onPress={handleSupport}
+              style={[styles.cardButton, { backgroundColor: '#28a745' }]}
+            >
+              إدارة الدعم
+            </Button>
+          </Card.Actions>
+        </Card>
+
+        <View style={styles.statsSection}>
+          <Text style={styles.statsTitle}>إحصائيات سريعة</Text>
+          
+          <View style={styles.statsGrid}>
+            <Card style={styles.statCard}>
+              <Card.Content>
+                <Text style={styles.statNumber}>25</Text>
+                <Text style={styles.statLabel}>سائق نشط</Text>
+              </Card.Content>
+            </Card>
+
+            <Card style={styles.statCard}>
+              <Card.Content>
+                <Text style={styles.statNumber}>150</Text>
+                <Text style={styles.statLabel}>طلب اليوم</Text>
+              </Card.Content>
+            </Card>
+
+            <Card style={styles.statCard}>
+              <Card.Content>
+                <Text style={styles.statNumber}>4.8</Text>
+                <Text style={styles.statLabel}>تقييم متوسط</Text>
+              </Card.Content>
+            </Card>
+
+            <Card style={styles.statCard}>
+              <Card.Content>
+                <Text style={styles.statNumber}>98%</Text>
+                <Text style={styles.statLabel}>معدل الرضا</Text>
+              </Card.Content>
+            </Card>
+          </View>
+        </View>
+
+        <View style={styles.recentSection}>
+          <Text style={styles.sectionTitle}>الطلبات الحديثة</Text>
+          <DataTable>
+            <DataTable.Header>
+              <DataTable.Title>رقم الطلب</DataTable.Title>
+              <DataTable.Title>الحالة</DataTable.Title>
+              <DataTable.Title numeric>المبلغ</DataTable.Title>
+            </DataTable.Header>
+
+            <DataTable.Row>
+              <DataTable.Cell>#12345</DataTable.Cell>
+              <DataTable.Cell>مكتمل</DataTable.Cell>
+              <DataTable.Cell numeric>25 ريال</DataTable.Cell>
+            </DataTable.Row>
+
+            <DataTable.Row>
+              <DataTable.Cell>#12344</DataTable.Cell>
+              <DataTable.Cell>قيد التنفيذ</DataTable.Cell>
+              <DataTable.Cell numeric>30 ريال</DataTable.Cell>
+            </DataTable.Row>
+
+            <DataTable.Row>
+              <DataTable.Cell>#12343</DataTable.Cell>
+              <DataTable.Cell>في الانتظار</DataTable.Cell>
+              <DataTable.Cell numeric>20 ريال</DataTable.Cell>
+            </DataTable.Row>
+          </DataTable>
+        </View>
       </ScrollView>
+
+      <FAB
+        icon="plus"
+        style={styles.fab}
+        onPress={() => {
+          // إضافة وظيفة جديدة
+          console.log('إضافة وظيفة جديدة');
+        }}
+      />
     </View>
   );
 }
@@ -292,90 +166,100 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: '#007bff',
+    paddingTop: 50,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#fff',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
+    marginBottom: 5,
   },
-  supportIcon: {
-    backgroundColor: '#f8f9fa',
-  },
-  tabsContainer: {
-    backgroundColor: '#fff',
-    paddingVertical: 10,
-  },
-  tabButton: {
-    marginHorizontal: 5,
-    borderRadius: 8,
+  subtitle: {
+    fontSize: 16,
+    color: '#e3f2fd',
   },
   content: {
     flex: 1,
     padding: 20,
   },
-  tabContent: {
-    flex: 1,
+  card: {
+    marginBottom: 20,
+    elevation: 4,
+    borderRadius: 12,
   },
-  tableCard: {
-    marginBottom: 10,
-    backgroundColor: '#fff',
-  },
-  tableRow: {
+  cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: 10,
+    marginBottom: 15,
   },
-  tableCell: {
-    fontSize: 14,
-    color: '#333',
+  cardText: {
     flex: 1,
-    minWidth: 80,
+    marginLeft: 10,
   },
-  statusChip: {
-    height: 25,
-  },
-  detailsButton: {
-    borderRadius: 6,
-    height: 30,
-  },
-  banButton: {
-    borderRadius: 6,
-    height: 30,
-    borderColor: '#dc3545',
-  },
-  supportCard: {
-    backgroundColor: '#fff',
-  },
-  supportTitle: {
+  cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 10,
+    marginBottom: 5,
   },
-  supportText: {
-    fontSize: 16,
+  cardDescription: {
+    fontSize: 14,
     color: '#666',
-    marginBottom: 20,
+    lineHeight: 20,
   },
-  supportButton: {
+  cardButton: {
     borderRadius: 8,
+    paddingHorizontal: 20,
+  },
+  statsSection: {
+    marginTop: 20,
+  },
+  statsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  statCard: {
+    width: '48%',
+    marginBottom: 15,
+    elevation: 2,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#007bff',
+    textAlign: 'center',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 5,
+  },
+  recentSection: {
+    marginTop: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
     backgroundColor: '#007bff',
-  },
-  mapButton: {
-    marginBottom: 10,
-    borderRadius: 8,
-    backgroundColor: '#4CAF50', // A green color for the map button
   },
 }); 

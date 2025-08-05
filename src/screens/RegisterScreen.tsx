@@ -11,25 +11,23 @@ import { TextInput, Button, Text, IconButton, RadioButton } from 'react-native-p
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../App';
-import { useAuth } from '../contexts/AuthContext';
 
 type RegisterScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Register'>;
 
 export default function RegisterScreen() {
   const navigation = useNavigation<RegisterScreenNavigationProp>();
-  const { signUp } = useAuth();
-  const [fullName, setFullName] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [phone, setPhone] = useState('');
-  const [role, setRole] = useState<'customer' | 'driver'>('customer');
+  const [role, setRole] = useState('customer');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-    if (!fullName || !email || !password || !confirmPassword || !phone) {
+    if (!name || !email || !phone || !password || !confirmPassword) {
       Alert.alert('خطأ', 'يرجى ملء جميع الحقول المطلوبة');
       return;
     }
@@ -46,22 +44,23 @@ export default function RegisterScreen() {
 
     setLoading(true);
     try {
-      const userData = {
-        name: fullName,
-        phone: phone,
-        role: role,
-      };
-
-      const { error } = await signUp(email, password, userData);
-      if (error) {
-        Alert.alert('خطأ في التسجيل', error.message);
-      } else {
-        Alert.alert('نجح التسجيل', 'تم إنشاء الحساب بنجاح');
-        navigation.navigate('Login');
-      }
+      // محاكاة عملية التسجيل
+      setTimeout(() => {
+        Alert.alert(
+          'نجح التسجيل',
+          'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.',
+          [
+            {
+              text: 'حسناً',
+              onPress: () => navigation.navigate('Login'),
+            },
+          ]
+        );
+        setLoading(false);
+      }, 2000);
     } catch (error) {
+      console.error('خطأ في التسجيل:', error);
       Alert.alert('خطأ', 'حدث خطأ أثناء التسجيل');
-    } finally {
       setLoading(false);
     }
   };
@@ -71,24 +70,23 @@ export default function RegisterScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.header}>
-          <IconButton
-            icon="arrow-left"
-            size={24}
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-          />
-          <Text style={styles.title}>إنشاء حساب</Text>
+          <Text style={styles.title}>إنشاء حساب جديد</Text>
+          <Text style={styles.subtitle}>انضم إلى تطبيق التاكسي</Text>
         </View>
 
-        <View style={styles.formContainer}>
+        <View style={styles.form}>
           <TextInput
             label="الاسم الكامل"
-            value={fullName}
-            onChangeText={setFullName}
+            value={name}
+            onChangeText={setName}
             mode="outlined"
             style={styles.input}
+            autoCapitalize="words"
           />
 
           <TextInput
@@ -99,36 +97,7 @@ export default function RegisterScreen() {
             style={styles.input}
             keyboardType="email-address"
             autoCapitalize="none"
-          />
-
-          <TextInput
-            label="كلمة المرور"
-            value={password}
-            onChangeText={setPassword}
-            mode="outlined"
-            style={styles.input}
-            secureTextEntry={!showPassword}
-            right={
-              <TextInput.Icon
-                icon={showPassword ? 'eye-off' : 'eye'}
-                onPress={() => setShowPassword(!showPassword)}
-              />
-            }
-          />
-
-          <TextInput
-            label="تأكيد كلمة المرور"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            mode="outlined"
-            style={styles.input}
-            secureTextEntry={!showConfirmPassword}
-            right={
-              <TextInput.Icon
-                icon={showConfirmPassword ? 'eye-off' : 'eye'}
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              />
-            }
+            autoCorrect={false}
           />
 
           <TextInput
@@ -140,34 +109,68 @@ export default function RegisterScreen() {
             keyboardType="phone-pad"
           />
 
+          <View style={styles.passwordContainer}>
+            <TextInput
+              label="كلمة المرور"
+              value={password}
+              onChangeText={setPassword}
+              mode="outlined"
+              style={styles.passwordInput}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <IconButton
+              icon={showPassword ? 'eye-off' : 'eye'}
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeIcon}
+            />
+          </View>
+
+          <View style={styles.passwordContainer}>
+            <TextInput
+              label="تأكيد كلمة المرور"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              mode="outlined"
+              style={styles.passwordInput}
+              secureTextEntry={!showConfirmPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <IconButton
+              icon={showConfirmPassword ? 'eye-off' : 'eye'}
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              style={styles.eyeIcon}
+            />
+          </View>
+
           <View style={styles.roleContainer}>
-            <Text style={styles.roleTitle}>اختر الدور:</Text>
-            <RadioButton.Group onValueChange={value => setRole(value as 'customer' | 'driver')} value={role}>
+            <Text style={styles.roleLabel}>نوع الحساب:</Text>
+            <RadioButton.Group onValueChange={value => setRole(value)} value={role}>
               <View style={styles.radioContainer}>
-                <RadioButton value="customer" />
-                <Text style={styles.radioLabel}>زبون</Text>
-              </View>
-              <View style={styles.radioContainer}>
-                <RadioButton value="driver" />
-                <Text style={styles.radioLabel}>سائق</Text>
+                <RadioButton.Item label="عميل" value="customer" />
+                <RadioButton.Item label="سائق" value="driver" />
               </View>
             </RadioButton.Group>
           </View>
 
           <Button
             mode="contained"
-            style={styles.registerButton}
             onPress={handleRegister}
+            style={styles.registerButton}
+            loading={loading}
+            disabled={loading}
           >
-            إنشاء حساب
+            إنشاء الحساب
           </Button>
 
           <Button
             mode="text"
             onPress={() => navigation.navigate('Login')}
-            style={styles.linkButton}
+            style={styles.loginButton}
           >
-            عندي حساب؟ دخول
+            لديك حساب بالفعل؟ تسجيل الدخول
           </Button>
         </View>
       </ScrollView>
@@ -185,51 +188,61 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
     marginTop: 40,
     marginBottom: 30,
   },
-  backButton: {
-    marginRight: 10,
-  },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
+    marginBottom: 10,
   },
-  formContainer: {
-    flex: 1,
-    gap: 15,
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  form: {
+    marginBottom: 20,
   },
   input: {
+    marginBottom: 15,
     backgroundColor: '#fff',
   },
-  roleContainer: {
-    marginVertical: 10,
-  },
-  roleTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
-  radioContainer: {
+  passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 5,
+    marginBottom: 15,
   },
-  radioLabel: {
+  passwordInput: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  eyeIcon: {
+    margin: 0,
+  },
+  roleContainer: {
+    marginBottom: 20,
+  },
+  roleLabel: {
     fontSize: 16,
-    marginLeft: 10,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  radioContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 10,
   },
   registerButton: {
-    marginTop: 20,
+    marginTop: 10,
     paddingVertical: 8,
     borderRadius: 12,
     backgroundColor: '#007bff',
   },
-  linkButton: {
-    marginTop: 10,
+  loginButton: {
+    marginTop: 15,
   },
 }); 

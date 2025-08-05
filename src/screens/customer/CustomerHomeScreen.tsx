@@ -3,7 +3,7 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  FlatList,
+  Dimensions,
 } from 'react-native';
 import { Button, Text, Card, IconButton, Chip } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -12,119 +12,126 @@ import { RootStackParamList } from '../../../App';
 
 type CustomerHomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'CustomerHome'>;
 
-const mockOrders = [
-  {
-    id: '1',
-    orderNumber: '#12345',
-    status: 'completed',
-    date: '2024-01-15',
-    address: 'شارع الملك فهد، الرياض',
-  },
-  {
-    id: '2',
-    orderNumber: '#12344',
-    status: 'in_progress',
-    date: '2024-01-14',
-    address: 'شارع التحلية، جدة',
-  },
-  {
-    id: '3',
-    orderNumber: '#12343',
-    status: 'pending',
-    date: '2024-01-13',
-    address: 'شارع العليا، الرياض',
-  },
-];
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'completed':
-      return '#28a745';
-    case 'in_progress':
-      return '#ffc107';
-    case 'pending':
-      return '#6c757d';
-    default:
-      return '#6c757d';
-  }
-};
-
-const getStatusText = (status: string) => {
-  switch (status) {
-    case 'completed':
-      return 'مكتمل';
-    case 'in_progress':
-      return 'قيد التنفيذ';
-    case 'pending':
-      return 'في الانتظار';
-    default:
-      return 'غير معروف';
-  }
-};
+const { width } = Dimensions.get('window');
 
 export default function CustomerHomeScreen() {
   const navigation = useNavigation<CustomerHomeScreenNavigationProp>();
 
-  const renderOrderItem = ({ item }: { item: any }) => (
-    <Card style={styles.orderCard} mode="outlined">
-      <Card.Content>
-        <View style={styles.orderHeader}>
-          <Text style={styles.orderNumber}>{item.orderNumber}</Text>
-          <Chip
-            mode="outlined"
-            textStyle={{ color: getStatusColor(item.status) }}
-            style={[styles.statusChip, { borderColor: getStatusColor(item.status) }]}
-          >
-            {getStatusText(item.status)}
-          </Chip>
-        </View>
-        <Text style={styles.orderAddress}>{item.address}</Text>
-        <Text style={styles.orderDate}>{item.date}</Text>
-        <Button
-          mode="outlined"
-          style={styles.detailsButton}
-          onPress={() => navigation.navigate('TrackOrder', { orderId: item.id })}
-        >
-          تفاصيل
-        </Button>
-      </Card.Content>
-    </Card>
-  );
+  const handleCreateOrder = () => {
+    navigation.navigate('CreateOrder');
+  };
+
+  const handleTrackOrder = () => {
+    // استخدام orderId تجريبي
+    navigation.navigate('TrackOrder', { orderId: 'test-order-123' });
+  };
+
+  const handleSupport = () => {
+    navigation.navigate('Support');
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View>
-          <Text style={styles.welcomeText}>مرحباً، أحمد</Text>
-          <Text style={styles.subtitle}>كيف يمكننا مساعدتك اليوم؟</Text>
-        </View>
-        <IconButton
-          icon="help-circle"
-          size={24}
-          onPress={() => navigation.navigate('Support')}
-          style={styles.supportButton}
-        />
+        <Text style={styles.title}>مرحباً بك في تطبيق التاكسي</Text>
+        <Text style={styles.subtitle}>اختر الخدمة المطلوبة</Text>
       </View>
 
-      <ScrollView style={styles.content}>
-        <Button
-          mode="contained"
-          style={styles.newOrderButton}
-          onPress={() => navigation.navigate('CreateOrder')}
-          icon="plus"
-        >
-          طلب توصيل جديد
-        </Button>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <Card style={styles.card}>
+          <Card.Content>
+            <View style={styles.cardHeader}>
+              <IconButton
+                icon="car"
+                size={40}
+                iconColor="#007bff"
+              />
+              <View style={styles.cardText}>
+                <Text style={styles.cardTitle}>طلب تاكسي جديد</Text>
+                <Text style={styles.cardDescription}>
+                  اطلب تاكسي للوصول إلى وجهتك
+                </Text>
+              </View>
+            </View>
+          </Card.Content>
+          <Card.Actions>
+            <Button
+              mode="contained"
+              onPress={handleCreateOrder}
+              style={styles.cardButton}
+            >
+              طلب تاكسي
+            </Button>
+          </Card.Actions>
+        </Card>
 
-        <View style={styles.ordersSection}>
-          <Text style={styles.sectionTitle}>الطلبات السابقة</Text>
-          <FlatList
-            data={mockOrders}
-            renderItem={renderOrderItem}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-          />
+        <Card style={styles.card}>
+          <Card.Content>
+            <View style={styles.cardHeader}>
+              <IconButton
+                icon="map-marker"
+                size={40}
+                iconColor="#28a745"
+              />
+              <View style={styles.cardText}>
+                <Text style={styles.cardTitle}>تتبع الطلب</Text>
+                <Text style={styles.cardDescription}>
+                  تتبع موقع التاكسي ووقت الوصول
+                </Text>
+              </View>
+            </View>
+          </Card.Content>
+          <Card.Actions>
+            <Button
+              mode="contained"
+              onPress={handleTrackOrder}
+              style={[styles.cardButton, { backgroundColor: '#28a745' }]}
+            >
+              تتبع الطلب
+            </Button>
+          </Card.Actions>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Content>
+            <View style={styles.cardHeader}>
+              <IconButton
+                icon="headset"
+                size={40}
+                iconColor="#ffc107"
+              />
+              <View style={styles.cardText}>
+                <Text style={styles.cardTitle}>الدعم الفني</Text>
+                <Text style={styles.cardDescription}>
+                  تواصل مع فريق الدعم للمساعدة
+                </Text>
+              </View>
+            </View>
+          </Card.Content>
+          <Card.Actions>
+            <Button
+              mode="contained"
+              onPress={handleSupport}
+              style={[styles.cardButton, { backgroundColor: '#ffc107' }]}
+            >
+              الدعم الفني
+            </Button>
+          </Card.Actions>
+        </Card>
+
+        <View style={styles.infoSection}>
+          <Text style={styles.infoTitle}>معلومات سريعة</Text>
+          <View style={styles.chipContainer}>
+            <Chip icon="clock" style={styles.chip}>
+              متوسط وقت الانتظار: 5 دقائق
+            </Chip>
+            <Chip icon="currency-usd" style={styles.chip}>
+              أسعار شفافة
+            </Chip>
+            <Chip icon="shield-check" style={styles.chip}>
+              سائقين معتمدين
+            </Chip>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -137,79 +144,70 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: '#007bff',
+    paddingTop: 50,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#fff',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
-  welcomeText: {
+  title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
+    marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
-    marginTop: 5,
-  },
-  supportButton: {
-    backgroundColor: '#f8f9fa',
+    color: '#e3f2fd',
   },
   content: {
     flex: 1,
     padding: 20,
   },
-  newOrderButton: {
-    marginBottom: 30,
-    paddingVertical: 12,
+  card: {
+    marginBottom: 20,
+    elevation: 4,
     borderRadius: 12,
-    backgroundColor: '#007bff',
   },
-  ordersSection: {
-    flex: 1,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
-  },
-  orderCard: {
-    marginBottom: 15,
-    backgroundColor: '#fff',
-  },
-  orderHeader: {
+  cardHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 15,
   },
-  orderNumber: {
+  cardText: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-  },
-  statusChip: {
-    height: 30,
-  },
-  orderAddress: {
-    fontSize: 16,
-    color: '#666',
     marginBottom: 5,
   },
-  orderDate: {
+  cardDescription: {
     fontSize: 14,
-    color: '#999',
+    color: '#666',
+    lineHeight: 20,
+  },
+  cardButton: {
+    borderRadius: 8,
+    paddingHorizontal: 20,
+  },
+  infoSection: {
+    marginTop: 20,
+  },
+  infoTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
     marginBottom: 15,
   },
-  detailsButton: {
-    alignSelf: 'flex-start',
-    borderRadius: 8,
+  chipContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  chip: {
+    marginBottom: 10,
   },
 }); 

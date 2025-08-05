@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   StyleSheet,
   ScrollView,
-  FlatList,
 } from 'react-native';
 import { Button, Text, Card, IconButton, Chip, Switch } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -12,91 +11,167 @@ import { RootStackParamList } from '../../../App';
 
 type DriverHomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'DriverHome'>;
 
-const mockNewOrders = [
-  {
-    id: '1',
-    customerName: 'أحمد محمد',
-    address: 'شارع الملك فهد، الرياض',
-    description: 'توصيل طرد من المطار إلى المنزل',
-    phone: '+966501234567',
-  },
-  {
-    id: '2',
-    customerName: 'فاطمة علي',
-    address: 'شارع التحلية، جدة',
-    description: 'توصيل طعام من المطعم',
-    phone: '+966502345678',
-  },
-];
-
 export default function DriverHomeScreen() {
   const navigation = useNavigation<DriverHomeScreenNavigationProp>();
-  const [isOnline, setIsOnline] = useState(true);
 
-  const handleAcceptOrder = (orderId: string) => {
-    navigation.navigate('DriverOrder', { orderId });
+  const handleMap = () => {
+    navigation.navigate('DriverMap', { orderId: 'test-order-123' });
   };
 
-  const renderNewOrderItem = ({ item }: { item: any }) => (
-    <Card style={styles.orderCard} mode="outlined">
-      <Card.Content>
-        <View style={styles.orderHeader}>
-          <Text style={styles.customerName}>{item.customerName}</Text>
-          <Chip mode="outlined" style={styles.newOrderChip}>
-            طلب جديد
-          </Chip>
-        </View>
-        <Text style={styles.orderAddress}>{item.address}</Text>
-        <Text style={styles.orderDescription}>{item.description}</Text>
-        <Text style={styles.orderPhone}>{item.phone}</Text>
-        <Button
-          mode="contained"
-          style={styles.acceptButton}
-          onPress={() => handleAcceptOrder(item.id)}
-        >
-          قبول الطلب
-        </Button>
-      </Card.Content>
-    </Card>
-  );
+  const handleOrders = () => {
+    navigation.navigate('DriverOrder', { orderId: 'test-order-123' });
+  };
+
+  const handleSupport = () => {
+    navigation.navigate('Support');
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View>
-          <Text style={styles.welcomeText}>مرحباً، محمد</Text>
-          <Text style={styles.subtitle}>إدارة الطلبات</Text>
-        </View>
-        <View style={styles.headerControls}>
-          <View style={styles.statusContainer}>
-            <Text style={styles.statusText}>
-              {isOnline ? 'أنا متصل ✅' : 'غير متصل ⛔'}
-            </Text>
-            <Switch
-              value={isOnline}
-              onValueChange={setIsOnline}
-              color="#007bff"
-            />
-          </View>
-          <IconButton
-            icon="help-circle"
-            size={24}
-            onPress={() => navigation.navigate('Support')}
-            style={styles.supportButton}
-          />
-        </View>
+        <Text style={styles.title}>مرحباً بك في تطبيق التاكسي</Text>
+        <Text style={styles.subtitle}>لوحة تحكم السائق</Text>
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.ordersSection}>
-          <Text style={styles.sectionTitle}>الطلبات الجديدة</Text>
-          <FlatList
-            data={mockNewOrders}
-            renderItem={renderNewOrderItem}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-          />
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <Card style={styles.statusCard}>
+          <Card.Content>
+            <View style={styles.statusHeader}>
+              <Text style={styles.statusTitle}>حالة العمل</Text>
+              <Switch value={true} />
+            </View>
+            <Text style={styles.statusText}>متاح للطلبات</Text>
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Content>
+            <View style={styles.cardHeader}>
+              <IconButton
+                icon="map-marker"
+                size={40}
+                iconColor="#007bff"
+              />
+              <View style={styles.cardText}>
+                <Text style={styles.cardTitle}>الخريطة</Text>
+                <Text style={styles.cardDescription}>
+                  عرض الخريطة والطلبات المتاحة
+                </Text>
+              </View>
+            </View>
+          </Card.Content>
+          <Card.Actions>
+            <Button
+              mode="contained"
+              onPress={handleMap}
+              style={styles.cardButton}
+            >
+              عرض الخريطة
+            </Button>
+          </Card.Actions>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Content>
+            <View style={styles.cardHeader}>
+              <IconButton
+                icon="clipboard-list"
+                size={40}
+                iconColor="#28a745"
+              />
+              <View style={styles.cardText}>
+                <Text style={styles.cardTitle}>الطلبات</Text>
+                <Text style={styles.cardDescription}>
+                  عرض وإدارة الطلبات الحالية
+                </Text>
+              </View>
+            </View>
+          </Card.Content>
+          <Card.Actions>
+            <Button
+              mode="contained"
+              onPress={handleOrders}
+              style={[styles.cardButton, { backgroundColor: '#28a745' }]}
+            >
+              عرض الطلبات
+            </Button>
+          </Card.Actions>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Content>
+            <View style={styles.cardHeader}>
+              <IconButton
+                icon="headset"
+                size={40}
+                iconColor="#ffc107"
+              />
+              <View style={styles.cardText}>
+                <Text style={styles.cardTitle}>الدعم الفني</Text>
+                <Text style={styles.cardDescription}>
+                  تواصل مع فريق الدعم للمساعدة
+                </Text>
+              </View>
+            </View>
+          </Card.Content>
+          <Card.Actions>
+            <Button
+              mode="contained"
+              onPress={handleSupport}
+              style={[styles.cardButton, { backgroundColor: '#ffc107' }]}
+            >
+              الدعم الفني
+            </Button>
+          </Card.Actions>
+        </Card>
+
+        <View style={styles.statsSection}>
+          <Text style={styles.statsTitle}>إحصائيات اليوم</Text>
+          
+          <View style={styles.statsGrid}>
+            <Card style={styles.statCard}>
+              <Card.Content>
+                <Text style={styles.statNumber}>8</Text>
+                <Text style={styles.statLabel}>طلبات مكتملة</Text>
+              </Card.Content>
+            </Card>
+
+            <Card style={styles.statCard}>
+              <Card.Content>
+                <Text style={styles.statNumber}>120</Text>
+                <Text style={styles.statLabel}>ريال إجمالي</Text>
+              </Card.Content>
+            </Card>
+
+            <Card style={styles.statCard}>
+              <Card.Content>
+                <Text style={styles.statNumber}>4.9</Text>
+                <Text style={styles.statLabel}>تقييم متوسط</Text>
+              </Card.Content>
+            </Card>
+
+            <Card style={styles.statCard}>
+              <Card.Content>
+                <Text style={styles.statNumber}>2</Text>
+                <Text style={styles.statLabel}>طلبات معلقة</Text>
+              </Card.Content>
+            </Card>
+          </View>
+        </View>
+
+        <View style={styles.infoSection}>
+          <Text style={styles.infoTitle}>معلومات سريعة</Text>
+          <View style={styles.chipContainer}>
+            <Chip icon="clock" style={styles.chip}>
+              متوسط وقت الرحلة: 15 دقيقة
+            </Chip>
+            <Chip icon="currency-usd" style={styles.chip}>
+              متوسط السعر: 15 ريال
+            </Chip>
+            <Chip icon="star" style={styles.chip}>
+              تقييم العملاء: ممتاز
+            </Chip>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -109,94 +184,123 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: '#007bff',
+    paddingTop: 50,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#fff',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
-  welcomeText: {
+  title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
+    marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
-    marginTop: 5,
-  },
-  headerControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  statusContainer: {
-    alignItems: 'center',
-    gap: 5,
-  },
-  statusText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  supportButton: {
-    backgroundColor: '#f8f9fa',
+    color: '#e3f2fd',
   },
   content: {
     flex: 1,
     padding: 20,
   },
-  ordersSection: {
-    flex: 1,
+  statusCard: {
+    marginBottom: 20,
+    elevation: 4,
+    borderRadius: 12,
+    backgroundColor: '#e8f5e8',
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
-  },
-  orderCard: {
-    marginBottom: 15,
-    backgroundColor: '#fff',
-  },
-  orderHeader: {
+  statusHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
   },
-  customerName: {
+  statusTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
   },
-  newOrderChip: {
-    backgroundColor: '#ffc107',
-    borderColor: '#ffc107',
-  },
-  orderAddress: {
+  statusText: {
     fontSize: 16,
-    color: '#666',
-    marginBottom: 5,
+    color: '#28a745',
+    fontWeight: 'bold',
   },
-  orderDescription: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 5,
+  card: {
+    marginBottom: 20,
+    elevation: 4,
+    borderRadius: 12,
   },
-  orderPhone: {
-    fontSize: 16,
-    color: '#666',
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 15,
   },
-  acceptButton: {
-    alignSelf: 'flex-start',
+  cardText: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+  },
+  cardButton: {
     borderRadius: 8,
-    backgroundColor: '#28a745',
+    paddingHorizontal: 20,
+  },
+  statsSection: {
+    marginTop: 20,
+  },
+  statsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  statCard: {
+    width: '48%',
+    marginBottom: 15,
+    elevation: 2,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#007bff',
+    textAlign: 'center',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 5,
+  },
+  infoSection: {
+    marginTop: 20,
+  },
+  infoTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+  },
+  chipContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  chip: {
+    marginBottom: 10,
   },
 }); 

@@ -1,212 +1,94 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Button, Text, Card, IconButton, Chip } from 'react-native-paper';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import React from 'react';
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
+import { Button, Text, Card, IconButton } from 'react-native-paper';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../../App';
-import FreeMapView from '../../components/FreeMapView';
-import { LocationService, LocationData } from '../../services/location';
-import { OpenStreetMapService } from '../../services/openstreetmap';
 
 type TrackOrderMapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'TrackOrderMap'>;
 type TrackOrderMapScreenRouteProp = RouteProp<RootStackParamList, 'TrackOrderMap'>;
 
-const mockOrder = {
-  id: 'ORD001',
-  customerName: 'أحمد محمد',
-  driverName: 'علي السائق',
-  driverPhone: '+964700123456',
-  pickupAddress: 'شارع الرشيد، بغداد',
-  destinationAddress: 'شارع فلسطين، بغداد',
-  status: 'in_progress',
-  estimatedTime: '15 دقيقة',
-  distance: '2.5 كم',
-  price: '15,000 دينار',
-};
-
-const mockLocations = {
-  customer: { latitude: 33.3152, longitude: 44.3661 }, // بغداد
-  driver: { latitude: 33.3200, longitude: 44.3700 },
-  destination: { latitude: 33.3100, longitude: 44.3600 },
-};
+const { width, height } = Dimensions.get('window');
 
 export default function TrackOrderMapScreen() {
   const navigation = useNavigation<TrackOrderMapScreenNavigationProp>();
   const route = useRoute<TrackOrderMapScreenRouteProp>();
-  const [order] = useState(mockOrder);
-  const [driverLocation, setDriverLocation] = useState<LocationData>(mockLocations.driver);
-  const [estimatedTime, setEstimatedTime] = useState('15 دقيقة');
-  const [distance, setDistance] = useState('2.5 كم');
-  const [neighborhoodInfo, setNeighborhoodInfo] = useState<any>(null);
-
-  useEffect(() => {
-    // محاكاة تحديث موقع السائق
-    const interval = setInterval(() => {
-      setDriverLocation(prev => ({
-        latitude: prev.latitude + (Math.random() - 0.5) * 0.001,
-        longitude: prev.longitude + (Math.random() - 0.5) * 0.001,
-      }));
-    }, 5000);
-
-    // تحميل معلومات الحي
-    loadNeighborhoodInfo();
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadNeighborhoodInfo = async () => {
-    try {
-      const info = await OpenStreetMapService.getNeighborhoodInfo(mockLocations.customer);
-      setNeighborhoodInfo(info);
-    } catch (error) {
-      console.error('خطأ في تحميل معلومات الحي:', error);
-    }
-  };
-
-  const handleCallDriver = () => {
-    Alert.alert(
-      'اتصال بالسائق',
-      `هل تريد الاتصال بـ ${order.driverName}؟`,
-      [
-        { text: 'إلغاء', style: 'cancel' },
-        { text: 'اتصال', onPress: () => console.log('اتصال بالسائق') },
-      ]
-    );
-  };
-
-  const handleMarkerPress = (markerId: string) => {
-    if (markerId === 'driver') {
-      Alert.alert('معلومات السائق', `${order.driverName}\n${order.driverPhone}`);
-    } else if (markerId === 'destination') {
-      Alert.alert('الوجهة', order.destinationAddress);
-    }
-  };
-
-  const markers = [
-    {
-      id: 'customer',
-      title: 'موقعك',
-      description: 'موقعك الحالي',
-      coordinate: mockLocations.customer,
-      type: 'customer' as const,
-    },
-    {
-      id: 'driver',
-      title: order.driverName,
-      description: 'السائق',
-      coordinate: driverLocation,
-      type: 'driver' as const,
-    },
-    {
-      id: 'destination',
-      title: 'الوجهة',
-      description: order.destinationAddress,
-      coordinate: mockLocations.destination,
-      type: 'destination' as const,
-    },
-  ];
-
-  const polylines = [
-    {
-      id: 'route',
-      coordinates: [driverLocation, mockLocations.destination],
-      color: '#007bff',
-    },
-  ];
+  const { orderId } = route.params;
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <IconButton
-          icon="arrow-right"
+          icon="arrow-left"
           size={24}
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         />
-        <Text style={styles.headerTitle}>تتبع الطلب</Text>
-        <IconButton
-          icon="phone"
-          size={24}
-          onPress={handleCallDriver}
-          style={styles.callButton}
-        />
+        <Text style={styles.title}>تتبع على الخريطة</Text>
+        <Text style={styles.subtitle}>رقم الطلب: {orderId}</Text>
       </View>
 
       <View style={styles.mapContainer}>
-        <FreeMapView
-          initialLocation={mockLocations.customer}
-          markers={markers}
-          polylines={polylines}
-          onMarkerPress={handleMarkerPress}
-          showNeighborhood={true}
-        />
+        <View style={styles.mapPlaceholder}>
+          <IconButton
+            icon="map-marker"
+            size={80}
+            iconColor="#007bff"
+          />
+          <Text style={styles.mapText}>خريطة التتبع</Text>
+          <Text style={styles.mapDescription}>
+            هنا ستظهر خريطة تفاعلية لتتبع التاكسي
+          </Text>
+        </View>
       </View>
 
-      <View style={styles.infoContainer}>
-        <Card style={styles.orderCard}>
-          <Card.Content>
-            <View style={styles.orderHeader}>
-              <Text style={styles.orderId}>طلب #{order.id}</Text>
-              <Chip
-                mode="outlined"
-                textStyle={{ color: '#28a745' }}
-                style={[styles.statusChip, { borderColor: '#28a745' }]}
-              >
-                قيد التوصيل
-              </Chip>
+      <Card style={styles.infoCard}>
+        <Card.Content>
+          <View style={styles.infoHeader}>
+            <IconButton
+              icon="truck-delivery"
+              size={40}
+              iconColor="#28a745"
+            />
+            <View style={styles.infoText}>
+              <Text style={styles.infoTitle}>السائق في الطريق</Text>
+              <Text style={styles.infoDescription}>
+                محمد علي - سيصل خلال 8 دقائق
+              </Text>
             </View>
+          </View>
+          
+          <View style={styles.driverInfo}>
+            <Text style={styles.driverName}>محمد علي</Text>
+            <Text style={styles.driverPhone}>+966 50 123 4567</Text>
+            <Text style={styles.driverRating}>تقييم: ⭐⭐⭐⭐⭐ (4.9)</Text>
+          </View>
+        </Card.Content>
+      </Card>
 
-            <View style={styles.driverInfo}>
-              <Text style={styles.driverName}>{order.driverName}</Text>
-              <Text style={styles.driverPhone}>{order.driverPhone}</Text>
-            </View>
-
-            <View style={styles.routeInfo}>
-              <View style={styles.routeItem}>
-                <Text style={styles.routeLabel}>من:</Text>
-                <Text style={styles.routeAddress}>{order.pickupAddress}</Text>
-              </View>
-              <View style={styles.routeItem}>
-                <Text style={styles.routeLabel}>إلى:</Text>
-                <Text style={styles.routeAddress}>{order.destinationAddress}</Text>
-              </View>
-            </View>
-
-            <View style={styles.statsContainer}>
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>الوقت المتوقع</Text>
-                <Text style={styles.statValue}>{estimatedTime}</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>المسافة</Text>
-                <Text style={styles.statValue}>{distance}</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>السعر</Text>
-                <Text style={styles.statValue}>{order.price}</Text>
-              </View>
-            </View>
-          </Card.Content>
-        </Card>
-
-        {neighborhoodInfo && (
-          <Card style={styles.neighborhoodCard}>
-            <Card.Content>
-              <Text style={styles.neighborhoodTitle}>الأماكن القريبة</Text>
-              <View style={styles.neighborhoodStats}>
-                <Chip style={styles.neighborhoodChip}>
-                  مطاعم: {neighborhoodInfo.restaurants.length}
-                </Chip>
-                <Chip style={styles.neighborhoodChip}>
-                  مدارس: {neighborhoodInfo.schools.length}
-                </Chip>
-                <Chip style={styles.neighborhoodChip}>
-                  حدائق: {neighborhoodInfo.parks.length}
-                </Chip>
-              </View>
-            </Card.Content>
-          </Card>
-        )}
+      <View style={styles.buttonContainer}>
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate('TrackOrder', { orderId })}
+          style={styles.detailsButton}
+          icon="information"
+        >
+          تفاصيل الطلب
+        </Button>
+        
+        <Button
+          mode="outlined"
+          onPress={() => navigation.navigate('Support')}
+          style={styles.supportButton}
+          icon="headset"
+        >
+          الدعم الفني
+        </Button>
       </View>
     </View>
   );
@@ -215,126 +97,111 @@ export default function TrackOrderMapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f9fa',
   },
   header: {
-    flexDirection: 'row',
+    backgroundColor: '#007bff',
+    paddingTop: 50,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#fff',
-    elevation: 2,
   },
   backButton: {
-    margin: 0,
+    position: 'absolute',
+    left: 20,
+    top: 50,
   },
-  headerTitle: {
-    fontSize: 18,
+  title: {
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
+    marginBottom: 5,
   },
-  callButton: {
-    margin: 0,
-    backgroundColor: '#28a745',
+  subtitle: {
+    fontSize: 16,
+    color: '#e3f2fd',
   },
   mapContainer: {
     flex: 1,
-    margin: 16,
+    backgroundColor: '#e3f2fd',
+    margin: 20,
     borderRadius: 12,
-    overflow: 'hidden',
-    elevation: 4,
-  },
-  infoContainer: {
-    padding: 16,
-  },
-  orderCard: {
-    marginBottom: 16,
-    borderRadius: 12,
-    elevation: 2,
-  },
-  orderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
   },
-  orderId: {
-    fontSize: 16,
+  mapPlaceholder: {
+    alignItems: 'center',
+    padding: 40,
+  },
+  mapText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#007bff',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  mapDescription: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  infoCard: {
+    margin: 20,
+    elevation: 4,
+    borderRadius: 12,
+  },
+  infoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  infoText: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  infoTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
+    marginBottom: 5,
   },
-  statusChip: {
-    borderRadius: 16,
+  infoDescription: {
+    fontSize: 14,
+    color: '#666',
   },
   driverInfo: {
-    marginBottom: 16,
-    padding: 12,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    paddingTop: 15,
   },
   driverName: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 4,
+    marginBottom: 5,
   },
   driverPhone: {
     fontSize: 14,
     color: '#666',
+    marginBottom: 5,
   },
-  routeInfo: {
-    marginBottom: 16,
-  },
-  routeItem: {
-    flexDirection: 'row',
-    marginBottom: 8,
-  },
-  routeLabel: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
-    width: 40,
-  },
-  routeAddress: {
-    fontSize: 14,
-    color: '#666',
-    flex: 1,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statLabel: {
+  driverRating: {
     fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
+    color: '#ffc107',
   },
-  statValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+  buttonContainer: {
+    padding: 20,
+    gap: 15,
   },
-  neighborhoodCard: {
-    borderRadius: 12,
-    elevation: 2,
+  detailsButton: {
+    borderRadius: 8,
+    paddingVertical: 8,
+    backgroundColor: '#007bff',
   },
-  neighborhoodTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
-  },
-  neighborhoodStats: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  neighborhoodChip: {
-    marginBottom: 8,
+  supportButton: {
+    borderRadius: 8,
+    paddingVertical: 8,
+    borderColor: '#007bff',
   },
 }); 

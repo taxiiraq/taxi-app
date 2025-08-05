@@ -5,6 +5,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { TextInput, Button, Text, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -15,14 +16,37 @@ type CreateOrderScreenNavigationProp = StackNavigationProp<RootStackParamList, '
 
 export default function CreateOrderScreen() {
   const navigation = useNavigation<CreateOrderScreenNavigationProp>();
-  const [address, setAddress] = useState('');
-  const [phone, setPhone] = useState('');
+  const [pickupAddress, setPickupAddress] = useState('');
+  const [destinationAddress, setDestinationAddress] = useState('');
   const [description, setDescription] = useState('');
-  const [notes, setNotes] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmitOrder = () => {
-    if (address && phone && description) {
-      navigation.navigate('TrackOrder', { orderId: 'new-order' });
+  const handleCreateOrder = async () => {
+    if (!pickupAddress || !destinationAddress) {
+      Alert.alert('خطأ', 'يرجى إدخال عنوان الانطلاق والوجهة');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // محاكاة إنشاء الطلب
+      setTimeout(() => {
+        Alert.alert(
+          'تم إنشاء الطلب',
+          'تم إنشاء طلبك بنجاح! سيتم التواصل معك قريباً.',
+          [
+            {
+              text: 'حسناً',
+              onPress: () => navigation.navigate('CustomerHome'),
+            },
+          ]
+        );
+        setLoading(false);
+      }, 2000);
+    } catch (error) {
+      console.error('خطأ في إنشاء الطلب:', error);
+      Alert.alert('خطأ', 'حدث خطأ أثناء إنشاء الطلب');
+      setLoading(false);
     }
   };
 
@@ -31,7 +55,10 @@ export default function CreateOrderScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.header}>
           <IconButton
             icon="arrow-left"
@@ -39,69 +66,58 @@ export default function CreateOrderScreen() {
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           />
-          <Text style={styles.title}>طلب توصيل جديد</Text>
+          <Text style={styles.title}>طلب تاكسي جديد</Text>
+          <Text style={styles.subtitle}>أدخل تفاصيل رحلتك</Text>
         </View>
 
-        <View style={styles.formContainer}>
+        <View style={styles.form}>
           <TextInput
-            label="العنوان"
-            value={address}
-            onChangeText={setAddress}
+            label="عنوان الانطلاق"
+            value={pickupAddress}
+            onChangeText={setPickupAddress}
             mode="outlined"
             style={styles.input}
-            multiline
-            numberOfLines={3}
-            placeholder="اكتب العنوان بالتفصيل"
+            placeholder="أدخل عنوان الانطلاق"
           />
 
           <TextInput
-            label="رقم الهاتف"
-            value={phone}
-            onChangeText={setPhone}
+            label="عنوان الوجهة"
+            value={destinationAddress}
+            onChangeText={setDestinationAddress}
             mode="outlined"
             style={styles.input}
-            keyboardType="phone-pad"
+            placeholder="أدخل عنوان الوجهة"
           />
 
           <TextInput
-            label="وصف الطلب"
+            label="وصف إضافي (اختياري)"
             value={description}
             onChangeText={setDescription}
             mode="outlined"
-            style={styles.input}
+            style={styles.messageInput}
             multiline
             numberOfLines={4}
-            placeholder="اكتب تفاصيل الطلب"
+            placeholder="أضف أي تفاصيل إضافية..."
           />
 
-          <TextInput
-            label="ملاحظات إضافية (اختياري)"
-            value={notes}
-            onChangeText={setNotes}
-            mode="outlined"
-            style={styles.input}
-            multiline
-            numberOfLines={3}
-            placeholder="أي ملاحظات إضافية"
-          />
+          <Button
+            mode="contained"
+            onPress={handleCreateOrder}
+            style={styles.submitButton}
+            loading={loading}
+            disabled={loading}
+          >
+            إنشاء الطلب
+          </Button>
+        </View>
 
-          <View style={styles.buttonContainer}>
-            <Button
-              mode="contained"
-              style={styles.submitButton}
-              onPress={handleSubmitOrder}
-              icon="send"
-            >
-              إرسال الطلب
-            </Button>
-
-            <Button
-              mode="outlined"
-              style={styles.backButtonStyle}
-              onPress={() => navigation.goBack()}
-            >
-              رجوع
-            </Button>
+        <View style={styles.infoSection}>
+          <Text style={styles.infoTitle}>معلومات مهمة</Text>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoText}>• متوسط وقت الانتظار: 5-10 دقائق</Text>
+            <Text style={styles.infoText}>• السعر سيتم تحديده حسب المسافة</Text>
+            <Text style={styles.infoText}>• يمكنك تتبع التاكسي في الوقت الفعلي</Text>
+            <Text style={styles.infoText}>• الدفع نقداً أو ببطاقة الائتمان</Text>
           </View>
         </View>
       </ScrollView>
@@ -119,38 +135,61 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 20,
     marginBottom: 30,
   },
   backButton: {
-    marginRight: 10,
+    position: 'absolute',
+    left: 0,
+    top: 0,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
+    marginBottom: 10,
   },
-  formContainer: {
-    flex: 1,
-    gap: 20,
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  form: {
+    marginBottom: 30,
   },
   input: {
+    marginBottom: 20,
     backgroundColor: '#fff',
   },
-  buttonContainer: {
-    marginTop: 30,
-    gap: 15,
+  messageInput: {
+    marginBottom: 20,
+    backgroundColor: '#fff',
   },
   submitButton: {
+    marginTop: 10,
     paddingVertical: 8,
     borderRadius: 12,
     backgroundColor: '#007bff',
   },
-  backButtonStyle: {
-    paddingVertical: 8,
-    borderRadius: 12,
-    borderColor: '#6c757d',
+  infoSection: {
+    marginTop: 20,
+  },
+  infoTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+  },
+  infoCard: {
+    backgroundColor: '#e3f2fd',
+    padding: 15,
+    borderRadius: 8,
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 8,
+    lineHeight: 20,
   },
 }); 

@@ -11,15 +11,11 @@ import { TextInput, Button, Text, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../App';
-import { useAuth } from '../contexts/AuthContext';
-import { DatabaseService } from '../services/database';
-import { supabase } from '../lib/supabase';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
 export default function LoginScreen() {
   const navigation = useNavigation<LoginScreenNavigationProp>();
-  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -41,52 +37,13 @@ export default function LoginScreen() {
         return;
       }
 
-      const { error } = await signIn(email, password);
-      if (error) {
-        Alert.alert('خطأ في تسجيل الدخول', error.message);
+      // تحقق بسيط للتجربة
+      if (email === 'driver@test.com' && password === 'driver123') {
+        navigation.navigate('DriverHome');
+      } else if (email === 'customer@test.com' && password === 'customer123') {
+        navigation.navigate('CustomerHome');
       } else {
-        try {
-          // التحقق من نوع المستخدم
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            const { data: userData, error: userError } = await DatabaseService.getUserById(user.id);
-            if (userError) {
-              console.error('خطأ في الحصول على بيانات المستخدم:', userError);
-              // إذا لم يتم العثور على المستخدم، أنشئه
-              const { error: createError } = await DatabaseService.createUser({
-                name: user.user_metadata?.name || 'مستخدم جديد',
-                email: user.email || '',
-                phone: user.user_metadata?.phone || '',
-                role: user.user_metadata?.role || 'customer',
-                status: 'active'
-              });
-              if (createError) {
-                console.error('خطأ في إنشاء المستخدم:', createError);
-              }
-              navigation.navigate('CustomerHome');
-            } else if (userData) {
-              switch (userData.role) {
-                case 'admin':
-                  navigation.navigate('AdminPanel');
-                  break;
-                case 'driver':
-                  navigation.navigate('DriverHome');
-                  break;
-                case 'customer':
-                default:
-                  navigation.navigate('CustomerHome');
-                  break;
-              }
-            } else {
-              navigation.navigate('CustomerHome');
-            }
-          } else {
-            navigation.navigate('CustomerHome');
-          }
-        } catch (userError) {
-          console.error('خطأ في الحصول على بيانات المستخدم:', userError);
-          navigation.navigate('CustomerHome');
-        }
+        Alert.alert('خطأ في تسجيل الدخول', 'بيانات غير صحيحة');
       }
     } catch (error) {
       console.error('خطأ في تسجيل الدخول:', error);
@@ -101,18 +58,16 @@ export default function LoginScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.header}>
-          <IconButton
-            icon="arrow-left"
-            size={24}
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-          />
           <Text style={styles.title}>تسجيل الدخول</Text>
+          <Text style={styles.subtitle}>مرحباً بك في تطبيق التاكسي</Text>
         </View>
 
-        <View style={styles.formContainer}>
+        <View style={styles.form}>
           <TextInput
             label="البريد الإلكتروني"
             value={email}
@@ -121,58 +76,51 @@ export default function LoginScreen() {
             style={styles.input}
             keyboardType="email-address"
             autoCapitalize="none"
+            autoCorrect={false}
           />
 
-          <TextInput
-            label="كلمة المرور"
-            value={password}
-            onChangeText={setPassword}
-            mode="outlined"
-            style={styles.input}
-            secureTextEntry={!showPassword}
-            right={
-              <TextInput.Icon
-                icon={showPassword ? 'eye-off' : 'eye'}
-                onPress={() => setShowPassword(!showPassword)}
-              />
-            }
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              label="كلمة المرور"
+              value={password}
+              onChangeText={setPassword}
+              mode="outlined"
+              style={styles.passwordInput}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <IconButton
+              icon={showPassword ? 'eye-off' : 'eye'}
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeIcon}
+            />
+          </View>
 
           <Button
             mode="contained"
-            style={styles.loginButton}
             onPress={handleLogin}
+            style={styles.loginButton}
             loading={loading}
             disabled={loading}
           >
-            دخول
+            تسجيل الدخول
           </Button>
 
           <Button
             mode="text"
             onPress={() => navigation.navigate('Register')}
-            style={styles.linkButton}
+            style={styles.registerButton}
           >
-            ما عندك حساب؟ سجل
+            ليس لديك حساب؟ إنشاء حساب جديد
           </Button>
         </View>
 
-        <View style={styles.footer}>
-          <Button
-            mode="text"
-            onPress={() => navigation.navigate('Support')}
-            style={styles.linkButton}
-          >
-            نسيت كلمة السر؟
-          </Button>
-
-          <Button
-            mode="text"
-            onPress={() => navigation.navigate('Support')}
-            style={styles.linkButton}
-          >
-            دعم فني
-          </Button>
+        <View style={styles.testAccounts}>
+          <Text style={styles.testTitle}>حسابات تجريبية:</Text>
+          <Text style={styles.testAccount}>مدير: nmcmilli07@gmail.com / admin123</Text>
+          <Text style={styles.testAccount}>سائق: driver@test.com / driver123</Text>
+          <Text style={styles.testAccount}>عميل: customer@test.com / customer123</Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -189,39 +137,64 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 60,
     marginBottom: 40,
   },
-  backButton: {
-    marginRight: 10,
-  },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
+    marginBottom: 10,
   },
-  formContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    gap: 20,
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  form: {
+    marginBottom: 30,
   },
   input: {
+    marginBottom: 20,
     backgroundColor: '#fff',
   },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  passwordInput: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  eyeIcon: {
+    margin: 0,
+  },
   loginButton: {
-    marginTop: 20,
+    marginTop: 10,
     paddingVertical: 8,
     borderRadius: 12,
     backgroundColor: '#007bff',
   },
-  linkButton: {
-    marginVertical: 5,
+  registerButton: {
+    marginTop: 15,
   },
-  footer: {
-    alignItems: 'center',
-    gap: 10,
-    marginTop: 40,
+  testAccounts: {
+    backgroundColor: '#e9ecef',
+    padding: 15,
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  testTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  testAccount: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 5,
   },
 }); 

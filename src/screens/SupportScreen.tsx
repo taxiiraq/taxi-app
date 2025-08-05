@@ -16,18 +16,38 @@ type SupportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Supp
 
 export default function SupportScreen() {
   const navigation = useNavigation<SupportScreenNavigationProp>();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    if (message.trim()) {
-      setIsSubmitted(true);
-      setMessage('');
-      Alert.alert(
-        'تم الإرسال',
-        'راح نتواصل وياك خلال وقت قصير',
-        [{ text: 'حسناً', onPress: () => navigation.goBack() }]
-      );
+  const handleSubmit = async () => {
+    if (!name || !email || !phone || !message) {
+      Alert.alert('خطأ', 'يرجى ملء جميع الحقول المطلوبة');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // محاكاة إرسال الرسالة
+      setTimeout(() => {
+        Alert.alert(
+          'تم الإرسال',
+          'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.',
+          [
+            {
+              text: 'حسناً',
+              onPress: () => navigation.goBack(),
+            },
+          ]
+        );
+        setLoading(false);
+      }, 2000);
+    } catch (error) {
+      console.error('خطأ في إرسال الرسالة:', error);
+      Alert.alert('خطأ', 'حدث خطأ أثناء إرسال الرسالة');
+      setLoading(false);
     }
   };
 
@@ -36,59 +56,111 @@ export default function SupportScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.header}>
-        <IconButton
-          icon="arrow-left"
-          size={24}
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        />
-        <Text style={styles.title}>الدعم الفني</Text>
-      </View>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.header}>
+          <IconButton
+            icon="arrow-left"
+            size={24}
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          />
+          <Text style={styles.title}>الدعم الفني</Text>
+          <Text style={styles.subtitle}>كيف يمكننا مساعدتك؟</Text>
+        </View>
 
-      <ScrollView style={styles.content}>
-        <Card style={styles.infoCard}>
+        <Card style={styles.contactCard}>
           <Card.Content>
-            <Text style={styles.infoTitle}>كيف يمكننا مساعدتك؟</Text>
-            <Text style={styles.infoText}>
-              اكتب مشكلتك أو استفسارك وسنقوم بالرد عليك في أقرب وقت ممكن
-            </Text>
+            <View style={styles.contactHeader}>
+              <IconButton
+                icon="headset"
+                size={40}
+                iconColor="#007bff"
+              />
+              <View style={styles.contactText}>
+                <Text style={styles.contactTitle}>تواصل معنا</Text>
+                <Text style={styles.contactDescription}>
+                  نحن هنا لمساعدتك في أي وقت
+                </Text>
+              </View>
+            </View>
           </Card.Content>
         </Card>
 
-        <View style={styles.formContainer}>
+        <View style={styles.form}>
           <TextInput
-            label="اكتب مشكلتك أو استفسارك"
+            label="الاسم الكامل"
+            value={name}
+            onChangeText={setName}
+            mode="outlined"
+            style={styles.input}
+            autoCapitalize="words"
+          />
+
+          <TextInput
+            label="البريد الإلكتروني"
+            value={email}
+            onChangeText={setEmail}
+            mode="outlined"
+            style={styles.input}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+
+          <TextInput
+            label="رقم الهاتف"
+            value={phone}
+            onChangeText={setPhone}
+            mode="outlined"
+            style={styles.input}
+            keyboardType="phone-pad"
+          />
+
+          <TextInput
+            label="رسالتك"
             value={message}
             onChangeText={setMessage}
             mode="outlined"
             style={styles.messageInput}
             multiline
             numberOfLines={6}
-            placeholder="اشرح مشكلتك بالتفصيل..."
+            placeholder="اكتب رسالتك هنا..."
           />
 
           <Button
             mode="contained"
-            style={styles.submitButton}
             onPress={handleSubmit}
-            icon="send"
-            disabled={!message.trim()}
+            style={styles.submitButton}
+            loading={loading}
+            disabled={loading}
           >
-            إرسال
+            إرسال الرسالة
           </Button>
         </View>
 
-        {isSubmitted && (
-          <Card style={styles.successCard}>
+        <View style={styles.infoSection}>
+          <Text style={styles.infoTitle}>معلومات التواصل</Text>
+          
+          <Card style={styles.infoCard}>
             <Card.Content>
-              <Text style={styles.successTitle}>تم الإرسال بنجاح</Text>
-              <Text style={styles.successText}>
-                راح نتواصل وياك خلال وقت قصير
-              </Text>
+              <View style={styles.infoRow}>
+                <IconButton icon="phone" size={20} />
+                <Text style={styles.infoText}>+966 50 123 4567</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <IconButton icon="email" size={20} />
+                <Text style={styles.infoText}>support@taxiapp.com</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <IconButton icon="clock" size={20} />
+                <Text style={styles.infoText}>24/7 متاح على مدار الساعة</Text>
+              </View>
             </Card.Content>
           </Card>
-        )}
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -99,69 +171,92 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  scrollContainer: {
+    flexGrow: 1,
     padding: 20,
-    backgroundColor: '#fff',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+  },
+  header: {
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 30,
   },
   backButton: {
-    marginRight: 10,
+    position: 'absolute',
+    left: 0,
+    top: 0,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  infoCard: {
-    marginBottom: 20,
-    backgroundColor: '#e3f2fd',
-    borderColor: '#2196f3',
-  },
-  infoTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1976d2',
     marginBottom: 10,
   },
-  infoText: {
+  subtitle: {
     fontSize: 16,
-    color: '#424242',
-    lineHeight: 24,
+    color: '#666',
+    textAlign: 'center',
   },
-  formContainer: {
-    gap: 20,
+  contactCard: {
+    marginBottom: 30,
+    elevation: 4,
+    borderRadius: 12,
+  },
+  contactHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  contactText: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  contactTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  contactDescription: {
+    fontSize: 14,
+    color: '#666',
+  },
+  form: {
+    marginBottom: 30,
+  },
+  input: {
+    marginBottom: 20,
+    backgroundColor: '#fff',
   },
   messageInput: {
+    marginBottom: 20,
     backgroundColor: '#fff',
   },
   submitButton: {
+    marginTop: 10,
     paddingVertical: 8,
     borderRadius: 12,
     backgroundColor: '#007bff',
   },
-  successCard: {
+  infoSection: {
     marginTop: 20,
-    backgroundColor: '#e8f5e8',
-    borderColor: '#4caf50',
   },
-  successTitle: {
+  infoTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2e7d32',
-    marginBottom: 10,
+    color: '#333',
+    marginBottom: 15,
   },
-  successText: {
+  infoCard: {
+    elevation: 2,
+    borderRadius: 8,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  infoText: {
     fontSize: 16,
-    color: '#424242',
+    color: '#333',
+    marginLeft: 10,
   },
 }); 

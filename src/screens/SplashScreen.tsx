@@ -2,7 +2,6 @@ import React from 'react';
 import {
   View,
   StyleSheet,
-  Image,
   Dimensions,
 } from 'react-native';
 import { Button, Text } from 'react-native-paper';
@@ -19,33 +18,19 @@ export default function SplashScreen() {
 
   const handleLoginPress = () => {
     try {
+      console.log('انتقال إلى شاشة تسجيل الدخول');
       navigation.navigate('Login');
     } catch (error) {
       console.error('خطأ في الانتقال إلى شاشة تسجيل الدخول:', error);
-      // في حالة الخطأ، انتظر قليلاً ثم حاول مرة أخرى
-      setTimeout(() => {
-        try {
-          navigation.navigate('Login');
-        } catch (retryError) {
-          console.error('خطأ في المحاولة الثانية:', retryError);
-        }
-      }, 1000);
     }
   };
 
   const handleRegisterPress = () => {
     try {
+      console.log('انتقال إلى شاشة التسجيل');
       navigation.navigate('Register');
     } catch (error) {
       console.error('خطأ في الانتقال إلى شاشة التسجيل:', error);
-      // في حالة الخطأ، انتظر قليلاً ثم حاول مرة أخرى
-      setTimeout(() => {
-        try {
-          navigation.navigate('Register');
-        } catch (retryError) {
-          console.error('خطأ في المحاولة الثانية:', retryError);
-        }
-      }, 1000);
     }
   };
 
