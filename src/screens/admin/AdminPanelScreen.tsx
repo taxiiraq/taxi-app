@@ -170,6 +170,15 @@ export default function AdminPanelScreen() {
 
   const renderDriversTab = () => (
     <View style={styles.tabContent}>
+      <Button
+        mode="contained"
+        style={styles.mapButton}
+        onPress={() => navigation.navigate('DriversMap')}
+        icon="map"
+      >
+        مراقبة السائقين على الخريطة
+      </Button>
+      
       <FlatList
         data={mockDrivers}
         renderItem={({ item }) => (
@@ -363,5 +372,10 @@ const styles = StyleSheet.create({
   supportButton: {
     borderRadius: 8,
     backgroundColor: '#007bff',
+  },
+  mapButton: {
+    marginBottom: 10,
+    borderRadius: 8,
+    backgroundColor: '#4CAF50', // A green color for the map button
   },
 }); 

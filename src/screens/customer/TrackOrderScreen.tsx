@@ -156,6 +156,15 @@ export default function TrackOrderScreen() {
           </Button>
 
           <Button
+            mode="contained"
+            style={styles.mapButton}
+            onPress={() => navigation.navigate('TrackOrderMap', { orderId: route.params.orderId })}
+            icon="map"
+          >
+            عرض الخريطة
+          </Button>
+
+          <Button
             mode="outlined"
             style={styles.supportButton}
             onPress={() => navigation.navigate('Support')}
@@ -273,6 +282,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 12,
     backgroundColor: '#007bff',
+  },
+  mapButton: {
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: '#6c757d',
   },
   supportButton: {
     paddingVertical: 8,

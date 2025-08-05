@@ -13,7 +13,10 @@ import DriverHomeScreen from './src/screens/driver/DriverHomeScreen';
 import AdminPanelScreen from './src/screens/admin/AdminPanelScreen';
 import CreateOrderScreen from './src/screens/customer/CreateOrderScreen';
 import TrackOrderScreen from './src/screens/customer/TrackOrderScreen';
+import TrackOrderMapScreen from './src/screens/customer/TrackOrderMapScreen';
 import DriverOrderScreen from './src/screens/driver/DriverOrderScreen';
+import DriverMapScreen from './src/screens/driver/DriverMapScreen';
+import DriversMapScreen from './src/screens/admin/DriversMapScreen';
 import SupportScreen from './src/screens/SupportScreen';
 
 export type RootStackParamList = {
@@ -25,7 +28,10 @@ export type RootStackParamList = {
   AdminPanel: undefined;
   CreateOrder: undefined;
   TrackOrder: { orderId: string };
+  TrackOrderMap: { orderId: string };
   DriverOrder: { orderId: string };
+  DriverMap: { orderId: string };
+  DriversMap: undefined;
   Support: undefined;
 };
 
@@ -52,7 +58,10 @@ export default function App() {
             <Stack.Screen name="AdminPanel" component={AdminPanelScreen} />
             <Stack.Screen name="CreateOrder" component={CreateOrderScreen} />
             <Stack.Screen name="TrackOrder" component={TrackOrderScreen} />
+            <Stack.Screen name="TrackOrderMap" component={TrackOrderMapScreen} />
             <Stack.Screen name="DriverOrder" component={DriverOrderScreen} />
+            <Stack.Screen name="DriverMap" component={DriverMapScreen} />
+            <Stack.Screen name="DriversMap" component={DriversMapScreen} />
             <Stack.Screen name="Support" component={SupportScreen} />
           </Stack.Navigator>
         </NavigationContainer>
