@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Provider as PaperProvider } from 'react-native-paper';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar } from 'react-native';
 
 import { AuthProvider } from './src/contexts/AuthContext';
 import SplashScreen from './src/screens/SplashScreen';
@@ -42,7 +42,7 @@ export default function App() {
     <AuthProvider>
       <PaperProvider>
         <NavigationContainer>
-          <StatusBar style="auto" />
+          <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
           <Stack.Navigator 
             initialRouteName="Splash"
             screenOptions={{
