@@ -28,6 +28,10 @@ export class OpenStreetMapService {
         node["amenity"="${type}"](around:${radius},${location.latitude},${location.longitude});
         way["amenity"="${type}"](around:${radius},${location.latitude},${location.longitude});
         relation["amenity"="${type}"](around:${radius},${location.latitude},${location.longitude});
+      );out body;>;out skel qt;` : `[out:json][timeout:25];(
+        node(around:${radius},${location.latitude},${location.longitude});
+        way(around:${radius},${location.latitude},${location.longitude});
+        relation(around:${radius},${location.latitude},${location.longitude});
       );out body;>;out skel qt;`;
       
       const response = await fetch(
