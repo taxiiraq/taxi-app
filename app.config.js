@@ -14,6 +14,12 @@ export default {
     assetBundlePatterns: [
       "**/*"
     ],
+    // إعدادات إضافية للاستقرار
+    jsEngine: "hermes",
+    android: {
+      enableProguardInReleaseBuilds: false,
+      enableSeparateBuildPerCPUArchitecture: false,
+    },
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.taxiapp.app",

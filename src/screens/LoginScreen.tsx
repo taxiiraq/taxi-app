@@ -45,32 +45,39 @@ export default function LoginScreen() {
       if (error) {
         Alert.alert('خطأ في تسجيل الدخول', error.message);
       } else {
-        // التحقق من نوع المستخدم
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: userData } = await DatabaseService.getUserById(user.id);
-          if (userData) {
-            switch (userData.role) {
-              case 'admin':
-                navigation.navigate('AdminPanel');
-                break;
-              case 'driver':
-                navigation.navigate('DriverHome');
-                break;
-              case 'customer':
-              default:
-                navigation.navigate('CustomerHome');
-                break;
+        try {
+          // التحقق من نوع المستخدم
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { data: userData } = await DatabaseService.getUserById(user.id);
+            if (userData) {
+              switch (userData.role) {
+                case 'admin':
+                  navigation.navigate('AdminPanel');
+                  break;
+                case 'driver':
+                  navigation.navigate('DriverHome');
+                  break;
+                case 'customer':
+                default:
+                  navigation.navigate('CustomerHome');
+                  break;
+              }
+            } else {
+              // إذا لم يتم العثور على بيانات المستخدم، افترض أنه عميل
+              navigation.navigate('CustomerHome');
             }
           } else {
-            // إذا لم يتم العثور على بيانات المستخدم، افترض أنه عميل
             navigation.navigate('CustomerHome');
           }
-        } else {
+        } catch (userError) {
+          console.error('خطأ في الحصول على بيانات المستخدم:', userError);
+          // في حالة الخطأ، انتقل إلى الصفحة الرئيسية للعملاء
           navigation.navigate('CustomerHome');
         }
       }
     } catch (error) {
+      console.error('خطأ في تسجيل الدخول:', error);
       Alert.alert('خطأ', 'حدث خطأ أثناء تسجيل الدخول');
     } finally {
       setLoading(false);

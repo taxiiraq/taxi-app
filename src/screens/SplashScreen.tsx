@@ -17,6 +17,22 @@ const { width, height } = Dimensions.get('window');
 export default function SplashScreen() {
   const navigation = useNavigation<SplashScreenNavigationProp>();
 
+  const handleLoginPress = () => {
+    try {
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error('خطأ في الانتقال إلى شاشة تسجيل الدخول:', error);
+    }
+  };
+
+  const handleRegisterPress = () => {
+    try {
+      navigation.navigate('Register');
+    } catch (error) {
+      console.error('خطأ في الانتقال إلى شاشة التسجيل:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
@@ -30,7 +46,7 @@ export default function SplashScreen() {
         <Button
           mode="contained"
           style={styles.loginButton}
-          onPress={() => navigation.navigate('Login')}
+          onPress={handleLoginPress}
         >
           تسجيل الدخول
         </Button>
@@ -38,7 +54,7 @@ export default function SplashScreen() {
         <Button
           mode="outlined"
           style={styles.registerButton}
-          onPress={() => navigation.navigate('Register')}
+          onPress={handleRegisterPress}
         >
           إنشاء حساب
         </Button>

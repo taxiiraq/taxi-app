@@ -41,7 +41,11 @@ export default function App() {
   return (
     <AuthProvider>
       <PaperProvider>
-        <NavigationContainer>
+        <NavigationContainer
+          onStateChange={(state) => {
+            console.log('Navigation state changed:', state);
+          }}
+        >
           <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
           <Stack.Navigator 
             initialRouteName="Splash"
