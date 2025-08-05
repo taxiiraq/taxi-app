@@ -1,151 +1,40 @@
-name: Build Android APK with Supabase
+name: Build Android APK
 
 on:
   push:
-    branches: [ main, develop ]
-  pull_request:
     branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      CI: 1
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        
-    - name: Install jq
-      run: sudo apt-get install -y jq
-    
-    - name: Setup Environment Variables
-      run: |
-        echo "EXPO_PUBLIC_SUPABASE_URL=https://weqqelaqsypnevypsdxq.supabase.co" >> $GITHUB_ENV
-        echo "EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlcXFlbGFxc3lwbmV2eXBzZHhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4NzQ2OTgsImV4cCI6MjA2OTQ1MDY5OH0.hIgwJcLiNeKd9WOyJdhFfrgYfVDlT2vuV7PM9cEydk0" >> $GITHUB_ENV
-        echo "CI=1" >> $GITHUB_ENV
-        echo "EXPO_TOKEN=${{ secrets.EXPO_TOKEN }}" >> $GITHUB_ENV
-        
-    - name: Install dependencies
-      run: npm install
-      
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'zulu'
-        java-version: '17'
-        
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-      
-    - name: Install Expo CLI
-      run: npm install -g @expo/cli
-      
-    - name: Install EAS CLI
-      run: npm install -g eas-cli
-      
-    - name: Setup Expo Token
-      run: |
-        echo "//registry.npmjs.org/:_authToken=${{ secrets.EXPO_TOKEN }}" > ~/.npmrc
-        echo "//registry.expo.dev/:_authToken=${{ secrets.EXPO_TOKEN }}" >> ~/.npmrc
-        
-    - name: Pre-check before build
-      run: |
-        echo "🔍 Starting Pre-check..."
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-        # Check for eas.json
-        if [ ! -f eas.json ]; then
-          echo "❌ Missing eas.json file. Please create it and define build profiles."; exit 1;
-        fi
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
 
-        # Check if preview profile exists
-        if ! jq -e '.build.preview' eas.json > /dev/null; then
-          echo "❌ 'preview' profile not found in eas.json."; exit 1;
-        fi
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-        # Check for package.json
-        if [ ! -f package.json ]; then
-          echo "❌ Missing package.json file."; exit 1;
-        fi
+      - name: Install dependencies
+        run: npm ci
 
-        # Check for App.tsx, App.js or main entry point
-        if [ ! -f App.tsx ] && [ ! -f App.js ] && [ ! -f index.js ]; then
-          echo "❌ Missing App.tsx, App.js or index.js. Cannot start project."; exit 1;
-        fi
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
 
-        # Check if expo-cli is installed
-        if ! npx expo --version >/dev/null 2>&1; then
-          echo "❌ expo CLI not found."; exit 1;
-        fi
+      - name: Build APK
+        run: cd android && ./gradlew assembleRelease
 
-        # Check if eas-cli is installed
-        if ! npx eas --version >/dev/null 2>&1; then
-          echo "❌ eas CLI not found."; exit 1;
-        fi
-
-        # Check if EXPO_TOKEN is available
-        if [ -z "$EXPO_TOKEN" ]; then
-          echo "❌ Missing EXPO_TOKEN environment variable or secret."; exit 1;
-        fi
-
-        # Check if Supabase Key is available
-        if [ -z "$EXPO_PUBLIC_SUPABASE_ANON_KEY" ]; then
-          echo "❌ Missing Supabase Anon Key."; exit 1;
-        fi
-
-        echo "✅ Pre-check passed. Proceeding to build."
-        
-    - name: Build APK with Expo
-      run: |
-        npx expo build:android --type apk --non-interactive
-      env:
-        EXPO_PUBLIC_SUPABASE_URL: ${{ env.EXPO_PUBLIC_SUPABASE_URL }}
-        EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ env.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
-        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        CI: 1
-      
-    - name: Download APK from EAS
-      run: |
-        npx eas build:list --platform android --limit 1 --json | jq -r '.[0].artifacts.buildUrl' | xargs -I {} curl -L {} -o taxi-app.apk
-        
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: taxi-app-apk
-        path: taxi-app.apk
-        retention-days: 30
-        
-    - name: Create Release
-      if: github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v1
-      with:
-        files: taxi-app.apk
-        tag_name: v${{ github.run_number }}
-        name: Release v${{ github.run_number }}
-        body: |
-          ## Taxi App APK
-          
-          ### Changes in this release:
-          - Automated build from main branch
-          - APK file included
-          
-          ### Installation:
-          1. Download the APK file
-          2. Enable "Install from unknown sources" in your Android settings
-          3. Install the APK
-          
-          ### Testing:
-          - Test all customer features
-          - Test all driver features  
-          - Test admin panel
-          - Test support system
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.apk
+          path: android/app/build/outputs/apk/release/app-release.apk 
