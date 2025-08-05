@@ -163,8 +163,7 @@ npx expo start
 
 ### **للمساعدة:**
 - راجع ملف `FREE_MAPS_ALTERNATIVES.md`
-- تحقق من ملف `MAPS_SETUP.md`
-- اقرأ ملف `GET_API_KEY.md` (للمقارنة)
+- تحقق من ملفات التوثيق الأخرى
 
 ### **روابط مفيدة:**
 - [OpenStreetMap](https://www.openstreetmap.org/)
