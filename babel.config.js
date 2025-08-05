@@ -7,7 +7,7 @@ module.exports = function(api) {
     ],
     env: {
       production: {
-        plugins: ['transform-remove-console']
+        plugins: ['babel-plugin-transform-remove-console']
       }
     }
   };
