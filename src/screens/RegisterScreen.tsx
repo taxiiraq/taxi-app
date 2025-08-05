@@ -142,7 +142,7 @@ export default function RegisterScreen() {
 
           <View style={styles.roleContainer}>
             <Text style={styles.roleTitle}>اختر الدور:</Text>
-            <RadioButton.Group onValueChange={value => setRole(value)} value={role}>
+            <RadioButton.Group onValueChange={value => setRole(value as 'customer' | 'driver')} value={role}>
               <View style={styles.radioContainer}>
                 <RadioButton value="customer" />
                 <Text style={styles.radioLabel}>زبون</Text>

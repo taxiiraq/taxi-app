@@ -57,7 +57,7 @@ export class LocationService {
       return {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        accuracy: location.coords.accuracy,
+        accuracy: location.coords.accuracy || undefined,
         timestamp: location.timestamp,
       };
     } catch (error) {
@@ -84,7 +84,7 @@ export class LocationService {
           const locationData: LocationData = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            accuracy: location.coords.accuracy,
+            accuracy: location.coords.accuracy || undefined,
             timestamp: location.timestamp,
           };
           callback(locationData);

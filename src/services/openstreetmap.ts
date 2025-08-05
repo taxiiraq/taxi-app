@@ -42,7 +42,7 @@ export class OpenStreetMapService {
       return data.elements.map((element: any) => ({
         id: element.id.toString(),
         name: element.tags?.name || 'غير معروف',
-        address: element.tags?.addr:street || '',
+        address: element.tags && element.tags['addr:street'] ? element.tags['addr:street'] : '',
         location: {
           latitude: element.lat,
           longitude: element.lon,

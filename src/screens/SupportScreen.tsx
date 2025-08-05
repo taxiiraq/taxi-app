@@ -10,7 +10,7 @@ import {
 import { TextInput, Button, Text, IconButton, Card } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../App';
+import { RootStackParamList } from '../../App';
 
 type SupportScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Support'>;
 
