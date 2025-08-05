@@ -103,9 +103,9 @@ jobs:
 
         echo "✅ Pre-check passed. Proceeding to build."
         
-    - name: Build APK with EAS
+    - name: Build APK with Expo
       run: |
-        npx eas build --platform android --profile preview --non-interactive
+        npx expo build:android --type apk --non-interactive
       env:
         EXPO_PUBLIC_SUPABASE_URL: ${{ env.EXPO_PUBLIC_SUPABASE_URL }}
         EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ env.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
