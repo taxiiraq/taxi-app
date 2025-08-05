@@ -12,6 +12,8 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../App';
 import { useAuth } from '../contexts/AuthContext';
+import { DatabaseService } from '../services/database';
+import { supabase } from '../lib/supabase';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -31,11 +33,42 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
+      // تحقق خاص للبريد الإلكتروني المدير
+      if (email.toLowerCase() === 'nmcmilli07@gmail.com' && password === 'admin123') {
+        // دخول مباشر للوحة التحكم
+        navigation.navigate('AdminPanel');
+        setLoading(false);
+        return;
+      }
+
       const { error } = await signIn(email, password);
       if (error) {
         Alert.alert('خطأ في تسجيل الدخول', error.message);
       } else {
-        navigation.navigate('CustomerHome');
+        // التحقق من نوع المستخدم
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: userData } = await DatabaseService.getUserById(user.id);
+          if (userData) {
+            switch (userData.role) {
+              case 'admin':
+                navigation.navigate('AdminPanel');
+                break;
+              case 'driver':
+                navigation.navigate('DriverHome');
+                break;
+              case 'customer':
+              default:
+                navigation.navigate('CustomerHome');
+                break;
+            }
+          } else {
+            // إذا لم يتم العثور على بيانات المستخدم، افترض أنه عميل
+            navigation.navigate('CustomerHome');
+          }
+        } else {
+          navigation.navigate('CustomerHome');
+        }
       }
     } catch (error) {
       Alert.alert('خطأ', 'حدث خطأ أثناء تسجيل الدخول');
