@@ -13,6 +13,15 @@ config.transformer.minifierConfig = {
 
 // إعدادات إضافية لتحسين الأداء
 config.resolver.sourceExts = ['js', 'jsx', 'json', 'ts', 'tsx'];
-config.resolver.assetExts = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+config.resolver.assetExts = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'ttf', 'otf'];
+
+// إعدادات إضافية للخطوط
+config.resolver.alias = {
+  ...config.resolver.alias,
+  '@expo/vector-icons': 'react-native-vector-icons',
+};
+
+// إعدادات إضافية لحل مشكلة الخطوط
+config.resolver.resolverMainFields = ['react-native', 'browser', 'main'];
 
 module.exports = config; 
