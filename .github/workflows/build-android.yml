@@ -76,9 +76,9 @@ jobs:
           echo "❌ Missing package.json file."; exit 1;
         fi
 
-        # Check for App.js or main entry point
-        if [ ! -f App.js ] && [ ! -f index.js ]; then
-          echo "❌ Missing App.js or index.js. Cannot start project."; exit 1;
+        # Check for App.tsx, App.js or main entry point
+        if [ ! -f App.tsx ] && [ ! -f App.js ] && [ ! -f index.js ]; then
+          echo "❌ Missing App.tsx, App.js or index.js. Cannot start project."; exit 1;
         fi
 
         # Check if expo-cli is installed
