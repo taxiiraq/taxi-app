@@ -82,12 +82,12 @@ jobs:
         fi
 
         # Check if expo-cli is installed
-        if ! command -v expo >/dev/null 2>&1; then
+        if ! npx expo --version >/dev/null 2>&1; then
           echo "❌ expo CLI not found."; exit 1;
         fi
 
         # Check if eas-cli is installed
-        if ! command -v eas >/dev/null 2>&1; then
+        if ! npx eas --version >/dev/null 2>&1; then
           echo "❌ eas CLI not found."; exit 1;
         fi
 
